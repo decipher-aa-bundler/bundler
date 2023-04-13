@@ -263,7 +263,7 @@
     "withdrawTo(address,uint256)": "205c2878"
   },
   "ast": {
-    "absolutePath": "contracts/interfaces/IStakeManager.sol",
+    "absolutePath": "ext/contracts/interfaces/IStakeManager.sol",
     "id": 389,
     "exportedSymbols": {
       "IStakeManager": [

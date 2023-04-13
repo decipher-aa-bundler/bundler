@@ -1090,7 +1090,7 @@
     "withdrawTo(address,uint256)": "205c2878"
   },
   "ast": {
-    "absolutePath": "contracts/interfaces/IEntryPoint.sol",
+    "absolutePath": "ext/contracts/interfaces/IEntryPoint.sol",
     "id": 249,
     "exportedSymbols": {
       "IAggregator": [
@@ -1129,7 +1129,7 @@
         "nodeType": "ImportDirective",
         "src": "312:29:2",
         "nodes": [],
-        "absolutePath": "contracts/interfaces/UserOperation.sol",
+        "absolutePath": "ext/contracts/interfaces/UserOperation.sol",
         "file": "./UserOperation.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 249,
@@ -1142,7 +1142,7 @@
         "nodeType": "ImportDirective",
         "src": "342:29:2",
         "nodes": [],
-        "absolutePath": "contracts/interfaces/IStakeManager.sol",
+        "absolutePath": "ext/contracts/interfaces/IStakeManager.sol",
         "file": "./IStakeManager.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 249,
@@ -1155,7 +1155,7 @@
         "nodeType": "ImportDirective",
         "src": "372:27:2",
         "nodes": [],
-        "absolutePath": "contracts/interfaces/IAggregator.sol",
+        "absolutePath": "ext/contracts/interfaces/IAggregator.sol",
         "file": "./IAggregator.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 249,

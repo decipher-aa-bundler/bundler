@@ -130,7 +130,7 @@
     "validatePaymasterUserOp((address,uint256,bytes,bytes,uint256,uint256,uint256,uint256,uint256,bytes,bytes),bytes32,uint256)": "f465c77e"
   },
   "ast": {
-    "absolutePath": "contracts/interfaces/IPaymaster.sol",
+    "absolutePath": "ext/contracts/interfaces/IPaymaster.sol",
     "id": 284,
     "exportedSymbols": {
       "IPaymaster": [
@@ -163,7 +163,7 @@
         "nodeType": "ImportDirective",
         "src": "62:29:3",
         "nodes": [],
-        "absolutePath": "contracts/interfaces/UserOperation.sol",
+        "absolutePath": "ext/contracts/interfaces/UserOperation.sol",
         "file": "./UserOperation.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 284,

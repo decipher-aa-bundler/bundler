@@ -101,7 +101,7 @@
     "validateUserOp((address,uint256,bytes,bytes,uint256,uint256,uint256,uint256,uint256,bytes,bytes),bytes32,uint256)": "3a871cdd"
   },
   "ast": {
-    "absolutePath": "contracts/interfaces/IAccount.sol",
+    "absolutePath": "ext/contracts/interfaces/IAccount.sol",
     "id": 17,
     "exportedSymbols": {
       "IAccount": [
@@ -134,7 +134,7 @@
         "nodeType": "ImportDirective",
         "src": "62:29:0",
         "nodes": [],
-        "absolutePath": "contracts/interfaces/UserOperation.sol",
+        "absolutePath": "ext/contracts/interfaces/UserOperation.sol",
         "file": "./UserOperation.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 17,

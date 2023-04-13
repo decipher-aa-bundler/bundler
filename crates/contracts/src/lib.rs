@@ -1,3 +1,8 @@
 pub mod ethereum {
-    // include!("EntryPoint.rs");
+    pub mod entry_point {
+        include!("ethereum/IEntryPoint.rs");
+    }
+    pub mod aggregator {
+        include!("ethereum/IAggregator.rs");
+    }
 }

@@ -244,7 +244,7 @@
     "validateUserOpSignature((address,uint256,bytes,bytes,uint256,uint256,uint256,uint256,uint256,bytes,bytes))": "64c530cd"
   },
   "ast": {
-    "absolutePath": "contracts/interfaces/IAggregator.sol",
+    "absolutePath": "ext/contracts/interfaces/IAggregator.sol",
     "id": 51,
     "exportedSymbols": {
       "IAggregator": [
@@ -277,7 +277,7 @@
         "nodeType": "ImportDirective",
         "src": "62:29:1",
         "nodes": [],
-        "absolutePath": "contracts/interfaces/UserOperation.sol",
+        "absolutePath": "ext/contracts/interfaces/UserOperation.sol",
         "file": "./UserOperation.sol",
         "nameLocation": "-1:-1:-1",
         "scope": 51,
