@@ -1,0 +1,543 @@
+{
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "enum IPaymaster.PostOpMode",
+          "name": "mode",
+          "type": "uint8"
+        },
+        {
+          "internalType": "bytes",
+          "name": "context",
+          "type": "bytes"
+        },
+        {
+          "internalType": "uint256",
+          "name": "actualGasCost",
+          "type": "uint256"
+        }
+      ],
+      "name": "postOp",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "sender",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "nonce",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes",
+              "name": "initCode",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes",
+              "name": "callData",
+              "type": "bytes"
+            },
+            {
+              "internalType": "uint256",
+              "name": "callGasLimit",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "verificationGasLimit",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "preVerificationGas",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxFeePerGas",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxPriorityFeePerGas",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes",
+              "name": "paymasterAndData",
+              "type": "bytes"
+            },
+            {
+              "internalType": "bytes",
+              "name": "signature",
+              "type": "bytes"
+            }
+          ],
+          "internalType": "struct UserOperation",
+          "name": "userOp",
+          "type": "tuple"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "userOpHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "maxCost",
+          "type": "uint256"
+        }
+      ],
+      "name": "validatePaymasterUserOp",
+      "outputs": [
+        {
+          "internalType": "bytes",
+          "name": "context",
+          "type": "bytes"
+        },
+        {
+          "internalType": "uint256",
+          "name": "validationData",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "deployedBytecode": {
+    "object": "0x",
+    "sourceMap": "",
+    "linkReferences": {}
+  },
+  "methodIdentifiers": {
+    "postOp(uint8,bytes,uint256)": "a9a23409",
+    "validatePaymasterUserOp((address,uint256,bytes,bytes,uint256,uint256,uint256,uint256,uint256,bytes,bytes),bytes32,uint256)": "f465c77e"
+  },
+  "ast": {
+    "absolutePath": "contracts/interfaces/IPaymaster.sol",
+    "id": 284,
+    "exportedSymbols": {
+      "IPaymaster": [
+        283
+      ],
+      "UserOperation": [
+        413
+      ],
+      "UserOperationLib": [
+        518
+      ]
+    },
+    "nodeType": "SourceUnit",
+    "src": "36:2724:3",
+    "nodes": [
+      {
+        "id": 250,
+        "nodeType": "PragmaDirective",
+        "src": "36:24:3",
+        "nodes": [],
+        "literals": [
+          "solidity",
+          "^",
+          "0.8",
+          ".12"
+        ]
+      },
+      {
+        "id": 251,
+        "nodeType": "ImportDirective",
+        "src": "62:29:3",
+        "nodes": [],
+        "absolutePath": "contracts/interfaces/UserOperation.sol",
+        "file": "./UserOperation.sol",
+        "nameLocation": "-1:-1:-1",
+        "scope": 284,
+        "sourceUnit": 519,
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "id": 283,
+        "nodeType": "ContractDefinition",
+        "src": "310:2449:3",
+        "nodes": [
+          {
+            "id": 256,
+            "nodeType": "EnumDefinition",
+            "src": "338:269:3",
+            "nodes": [],
+            "canonicalName": "IPaymaster.PostOpMode",
+            "members": [
+              {
+                "id": 253,
+                "name": "opSucceeded",
+                "nameLocation": "364:11:3",
+                "nodeType": "EnumValue",
+                "src": "364:11:3"
+              },
+              {
+                "id": 254,
+                "name": "opReverted",
+                "nameLocation": "406:10:3",
+                "nodeType": "EnumValue",
+                "src": "406:10:3"
+              },
+              {
+                "id": 255,
+                "name": "postOpReverted",
+                "nameLocation": "473:14:3",
+                "nodeType": "EnumValue",
+                "src": "473:14:3"
+              }
+            ],
+            "name": "PostOpMode",
+            "nameLocation": "343:10:3"
+          },
+          {
+            "id": 271,
+            "nodeType": "FunctionDefinition",
+            "src": "1872:169:3",
+            "nodes": [],
+            "documentation": {
+              "id": 257,
+              "nodeType": "StructuredDocumentation",
+              "src": "613:1254:3",
+              "text": " payment validation: check if paymaster agrees to pay.\n Must verify sender is the entryPoint.\n Revert to reject this request.\n Note that bundlers will reject this method if it changes the state, unless the paymaster is trusted (whitelisted)\n The paymaster pre-pays using its deposit, and receive back a refund after the postOp method returns.\n @param userOp the user operation\n @param userOpHash hash of the user's request data.\n @param maxCost the maximum cost of this transaction (based on maximum gas and gas price from userOp)\n @return context value to send to a postOp\n      zero length to signify postOp is not required.\n @return validationData signature and time-range of this operation, encoded the same as the return value of validateUserOperation\n      <20-byte> sigAuthorizer - 0 for valid signature, 1 to mark signature failure,\n         otherwise, an address of an \"authorizer\" contract.\n      <6-byte> validUntil - last timestamp this operation is valid. 0 for \"indefinite\"\n      <6-byte> validAfter - first timestamp this operation is valid\n      Note that the validation code cannot use block.timestamp (or block.number) directly."
+            },
+            "functionSelector": "f465c77e",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "validatePaymasterUserOp",
+            "nameLocation": "1881:23:3",
+            "parameters": {
+              "id": 265,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 260,
+                  "mutability": "mutable",
+                  "name": "userOp",
+                  "nameLocation": "1928:6:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 271,
+                  "src": "1905:29:3",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_struct$_UserOperation_$413_calldata_ptr",
+                    "typeString": "struct UserOperation"
+                  },
+                  "typeName": {
+                    "id": 259,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 258,
+                      "name": "UserOperation",
+                      "nameLocations": [
+                        "1905:13:3"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 413,
+                      "src": "1905:13:3"
+                    },
+                    "referencedDeclaration": 413,
+                    "src": "1905:13:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_struct$_UserOperation_$413_storage_ptr",
+                      "typeString": "struct UserOperation"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 262,
+                  "mutability": "mutable",
+                  "name": "userOpHash",
+                  "nameLocation": "1944:10:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 271,
+                  "src": "1936:18:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 261,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1936:7:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 264,
+                  "mutability": "mutable",
+                  "name": "maxCost",
+                  "nameLocation": "1964:7:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 271,
+                  "src": "1956:15:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 263,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1956:7:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1904:68:3"
+            },
+            "returnParameters": {
+              "id": 270,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 267,
+                  "mutability": "mutable",
+                  "name": "context",
+                  "nameLocation": "2008:7:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 271,
+                  "src": "1995:20:3",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_memory_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 266,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1995:5:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 269,
+                  "mutability": "mutable",
+                  "name": "validationData",
+                  "nameLocation": "2025:14:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 271,
+                  "src": "2017:22:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 268,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2017:7:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1994:46:3"
+            },
+            "scope": 283,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "id": 282,
+            "nodeType": "FunctionDefinition",
+            "src": "2668:89:3",
+            "nodes": [],
+            "documentation": {
+              "id": 272,
+              "nodeType": "StructuredDocumentation",
+              "src": "2047:616:3",
+              "text": " post-operation handler.\n Must verify sender is the entryPoint\n @param mode enum with the following options:\n      opSucceeded - user operation succeeded.\n      opReverted  - user op reverted. still has to pay for gas.\n      postOpReverted - user op succeeded, but caused postOp (in mode=opSucceeded) to revert.\n                       Now this is the 2nd call, after user's op was deliberately reverted.\n @param context - the context value returned by validatePaymasterUserOp\n @param actualGasCost - actual gas used so far (without this postOp call)."
+            },
+            "functionSelector": "a9a23409",
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "postOp",
+            "nameLocation": "2677:6:3",
+            "parameters": {
+              "id": 280,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 275,
+                  "mutability": "mutable",
+                  "name": "mode",
+                  "nameLocation": "2695:4:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 282,
+                  "src": "2684:15:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_enum$_PostOpMode_$256",
+                    "typeString": "enum IPaymaster.PostOpMode"
+                  },
+                  "typeName": {
+                    "id": 274,
+                    "nodeType": "UserDefinedTypeName",
+                    "pathNode": {
+                      "id": 273,
+                      "name": "PostOpMode",
+                      "nameLocations": [
+                        "2684:10:3"
+                      ],
+                      "nodeType": "IdentifierPath",
+                      "referencedDeclaration": 256,
+                      "src": "2684:10:3"
+                    },
+                    "referencedDeclaration": 256,
+                    "src": "2684:10:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_enum$_PostOpMode_$256",
+                      "typeString": "enum IPaymaster.PostOpMode"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 277,
+                  "mutability": "mutable",
+                  "name": "context",
+                  "nameLocation": "2716:7:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 282,
+                  "src": "2701:22:3",
+                  "stateVariable": false,
+                  "storageLocation": "calldata",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes_calldata_ptr",
+                    "typeString": "bytes"
+                  },
+                  "typeName": {
+                    "id": 276,
+                    "name": "bytes",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2701:5:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes_storage_ptr",
+                      "typeString": "bytes"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 279,
+                  "mutability": "mutable",
+                  "name": "actualGasCost",
+                  "nameLocation": "2733:13:3",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 282,
+                  "src": "2725:21:3",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 278,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2725:7:3",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2683:64:3"
+            },
+            "returnParameters": {
+              "id": 281,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "2756:0:3"
+            },
+            "scope": 283,
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          }
+        ],
+        "abstract": false,
+        "baseContracts": [],
+        "canonicalName": "IPaymaster",
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": {
+          "id": 252,
+          "nodeType": "StructuredDocumentation",
+          "src": "93:216:3",
+          "text": " the interface exposed by a paymaster contract, who agrees to pay the gas for user's operations.\n a paymaster must hold a stake to cover the required entrypoint stake and also the gas for the transaction."
+        },
+        "fullyImplemented": false,
+        "linearizedBaseContracts": [
+          283
+        ],
+        "name": "IPaymaster",
+        "nameLocation": "320:10:3",
+        "scope": 284,
+        "usedErrors": []
+      }
+    ],
+    "license": "GPL-3.0"
+  },
+  "id": 3
+}
