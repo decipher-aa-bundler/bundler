@@ -18,7 +18,7 @@ pub struct UserOperation {
 }
 
 impl UserOperation {
-    fn new(sender: &str, nonce: &str, init_code: &str) -> Result<UserOperation, UserOpsError> {
+    pub fn new(sender: &str, nonce: &str, init_code: &str) -> Result<UserOperation, UserOpsError> {
         Ok(UserOperation {
             sender: Address::from_str(sender).map_err(|e| UserOpsError::ParseError { msg: e.to_string() })?,
             nonce: U256::from_str(nonce).map_err(|e| UserOpsError::ParseError { msg: e.to_string() })?,
