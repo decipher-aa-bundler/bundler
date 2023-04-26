@@ -1,11 +1,10 @@
-use crate::error::UserOpsError;
-
+use crate::error::BundlerTypeError;
 use ethers::types::{Address, Bytes, U256};
 use std::str::FromStr;
 
 macro_rules! parse_value {
     ($t:ty, $value: expr) => {
-        <$t>::from_str($value).map_err(|e| UserOpsError::ParseError { msg: e.to_string() })
+        <$t>::from_str($value).map_err(|e| BundlerTypeError::ParseError { msg: e.to_string() })
     };
 }
 
@@ -23,6 +22,7 @@ pub struct UserOperation {
     pub signature: Bytes,
 }
 
+#[allow(clippy::too_many_arguments)]
 impl UserOperation {
     pub fn new(
         sender: &str,
@@ -35,7 +35,7 @@ impl UserOperation {
         max_priority_fee_per_gas: &str,
         paymaster_and_data: &str,
         signature: &str,
-    ) -> Result<UserOperation, UserOpsError> {
+    ) -> Result<UserOperation, BundlerTypeError> {
         Ok(UserOperation {
             sender: parse_value!(Address, sender)?,
             nonce: parse_value!(U256, nonce)?,

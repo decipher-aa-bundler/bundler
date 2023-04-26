@@ -3,6 +3,13 @@ name = "bundler"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "bundler"
+path = "bin/main.rs"
+
 [dependencies]
 actix-web = "4.3.1"
 env_logger = "0.10.0"
+serde = {version = "1.0.160", features = ["derive"]}
+bundler-types = {path = "../bundler-types"}
+thiserror = "1.0.40"

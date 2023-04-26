@@ -23,8 +23,8 @@ fn main() {
         if let Ok(abi) = dir {
             fs::read_dir(abi.path()).unwrap().for_each(|abi| {
                 if let Ok(a) = abi {
-                    let abi_name = a.file_name().clone();
-                    if let Some(file_name) = abi_name.clone().to_str() {
+                    let abi_name = a.file_name();
+                    if let Some(file_name) = abi_name.to_str() {
                         let binding_name = file_name.replace(".json", ".rs");
                         Abigen::from_file(a.path())
                             .unwrap()
