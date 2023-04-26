@@ -1,5 +1,6 @@
 [workspace]
 members = [
-    "crates/bin",
-    "crates/contracts"
+    "crates/bunder",
+    "crates/contracts",
+    "crates/bundler-types"
 ]
