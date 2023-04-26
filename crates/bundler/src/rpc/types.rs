@@ -27,6 +27,7 @@ impl TryFrom<UserOps> for UserOperation {
             &value.nonce,
             &value.init_code,
             &value.call_data,
+            &value.call_gas_limit,
             &value.verification_gas_limit,
             &value.pre_verification_gas,
             &value.max_fee_per_gas,
