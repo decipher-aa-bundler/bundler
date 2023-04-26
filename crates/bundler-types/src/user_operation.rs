@@ -1,7 +1,13 @@
 use crate::error::UserOpsError;
 
+use ethers::types::{Address, Bytes, U256};
 use std::str::FromStr;
-use ethers::types::{Address, U256, Bytes};
+
+macro_rules! parse_value {
+    ($t:ty, $value: expr) => {
+        <$t>::from_str($value).map_err(|e| UserOpsError::ParseError { msg: e.to_string() })
+    };
+}
 
 #[derive(Debug, Clone)]
 pub struct UserOperation {
@@ -18,18 +24,29 @@ pub struct UserOperation {
 }
 
 impl UserOperation {
-    pub fn new(sender: &str, nonce: &str, init_code: &str) -> Result<UserOperation, UserOpsError> {
+    pub fn new(
+        sender: &str,
+        nonce: &str,
+        init_code: &str,
+        call_data: &str,
+        verification_gas_limit: &str,
+        pre_verification_gas: &str,
+        max_fee_per_gas: &str,
+        max_priority_fee_per_gas: &str,
+        paymaster_and_data: &str,
+        signature: &str,
+    ) -> Result<UserOperation, UserOpsError> {
         Ok(UserOperation {
-            sender: Address::from_str(sender).map_err(|e| UserOpsError::ParseError { msg: e.to_string() })?,
-            nonce: U256::from_str(nonce).map_err(|e| UserOpsError::ParseError { msg: e.to_string() })?,
-            init_code: Bytes::from_str(init_code).map_err(|e| UserOpsError::ParseError { msg: e.to_string() })?,
-            call_data: Default::default(),
-            verification_gas_limit: Default::default(),
-            pre_verification_gas: Default::default(),
-            max_fee_per_gas: Default::default(),
-            max_priority_fee_per_gas: Default::default(),
-            paymaster_and_data: Default::default(),
-            signature: Default::default(),
+            sender: parse_value!(Address, sender)?,
+            nonce: parse_value!(U256, nonce)?,
+            init_code: parse_value!(Bytes, init_code)?,
+            call_data: parse_value!(Bytes, call_data)?,
+            verification_gas_limit: parse_value!(U256, verification_gas_limit)?,
+            pre_verification_gas: parse_value!(U256, pre_verification_gas)?,
+            max_fee_per_gas: parse_value!(U256, max_fee_per_gas)?,
+            max_priority_fee_per_gas: parse_value!(U256, max_priority_fee_per_gas)?,
+            paymaster_and_data: parse_value!(Bytes, paymaster_and_data)?,
+            signature: parse_value!(Bytes, signature)?,
         })
     }
 }
