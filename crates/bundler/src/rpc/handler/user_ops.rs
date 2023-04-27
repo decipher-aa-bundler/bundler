@@ -8,11 +8,11 @@ use actix_web::{post, web, Error, Responder};
 pub async fn estimate_user_ops_gas(
     body: web::Json<UserOps>,
     path: web::Path<String>,
-    _client: web::Data<BundlerClient>,
+    client: web::Data<BundlerClient>,
 ) -> Result<impl Responder, Error> {
     let user_ops = body.into_inner();
     let ep_addr = path.into_inner();
-    user_ops_svc::estimate_user_ops_gas(user_ops, &ep_addr)
+    user_ops_svc::estimate_user_ops_gas(user_ops, &ep_addr, client.eth_client.as_ref())
         .await
         .map_err(actix_web::error::ErrorInternalServerError)?;
 

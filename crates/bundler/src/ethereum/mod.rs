@@ -1,3 +1,4 @@
+pub mod client;
 pub mod errors;
 
 use crate::ethereum::errors::EthereumError;
@@ -25,9 +26,4 @@ impl EthClient {
             ),
         })
     }
-}
-
-#[async_trait]
-impl EthClientHandler for EthClient {
-    async fn calculate_gas(&self) {}
 }
