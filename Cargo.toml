@@ -4,3 +4,6 @@ members = [
     "crates/contracts",
     "crates/bundler-types"
 ]
+
+[patch.crates-io]
+test-crate = {git = "ssh://git@github.com/decipher-aa-bundler/test-crate.git"}
