@@ -34,7 +34,13 @@ jobs:
       - name: Cargo test
         run: cargo test --verbose -- --test-threads=4
 
-    clippy:
+  clippy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        toolchain:
+          - stable
+    steps:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: rust-toolchain
@@ -45,7 +51,13 @@ jobs:
       - name: Cargo Clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
 
-    fmt:
+  fmt:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        toolchain:
+          - stable
+    steps:
       - name: Checkout code
         uses: actions/checkout@v3
       - name: rust-toolchain
