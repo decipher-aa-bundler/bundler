@@ -1,10 +1,9 @@
 use crate::ethereum::EthClientHandler;
 use crate::rpc::service::BundlerServiceHandler;
 use async_trait::async_trait;
-use std::sync::Arc;
 
 pub struct BundlerService {
-    pub eth_client: Arc<dyn EthClientHandler>,
+    pub eth_client: Box<dyn EthClientHandler>,
 }
 
 #[async_trait]
