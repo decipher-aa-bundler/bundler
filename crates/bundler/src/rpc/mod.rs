@@ -1,11 +1,10 @@
 pub mod errors;
 pub mod handler;
+pub mod models;
 pub mod service;
 pub mod types;
 
-use crate::ethereum::EthClient;
-use crate::rpc::service::new_service;
-use crate::BundlerClient;
+use crate::rpc::types::BundlerClient;
 use actix_web::{web, App, HttpServer};
 use env_logger::Env;
 
@@ -25,7 +24,11 @@ pub async fn new_server() {
 }
 
 fn new_app_data() -> Result<web::Data<BundlerClient>, String> {
-    Ok(web::Data::new(BundlerClient::new(
-        EthClient::new().map_err(|e| e.to_string())?,
-    )))
+    Ok(web::Data::new(BundlerClient::new()?))
+}
+
+fn new_service() -> actix_web::Scope {
+    web::scope("/api/v1")
+        .service(web::scope("user-ops").service(handler::user_ops::estimate_user_ops_gas))
+    // .service(web::scope("estimate").service( ))
 }
