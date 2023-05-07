@@ -14,7 +14,7 @@ pub async fn estimate_user_ops_gas(
     let user_ops = body.into_inner();
     let ep_addr = path.into_inner();
 
-    service::user_ops::estimate_user_ops_gas(user_ops, &ep_addr, &client.bundler_service)
+    service::user_ops::estimate_user_ops_gas(user_ops, &ep_addr, client.bundler_service.as_ref())
         .await
         .unwrap();
 
