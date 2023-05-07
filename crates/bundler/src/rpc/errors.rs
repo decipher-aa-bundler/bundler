@@ -1,3 +1,4 @@
+use crate::ethereum::errors::EthereumError;
 use bundler_types::error::BundlerTypeError;
 use thiserror::Error;
 
@@ -5,4 +6,7 @@ use thiserror::Error;
 pub enum RpcError {
     #[error(transparent)]
     BundlerTypeError(#[from] BundlerTypeError),
+
+    #[error(transparent)]
+    EthereumError(#[from] EthereumError),
 }
