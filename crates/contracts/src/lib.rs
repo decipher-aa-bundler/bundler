@@ -1,11 +1,13 @@
+mod user_operation;
+
 #[macro_export]
 macro_rules! include_abi {
     ($path:literal) => {
-        include!(concat!("ethereum/", $path));
+        include!(concat!("bindings/", $path));
     };
 }
 
-pub mod ethereum {
+pub mod bindings {
     pub mod abi {
         pub mod account {
             include_abi!("IAccount.rs");
