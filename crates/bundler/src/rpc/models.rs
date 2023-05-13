@@ -1,5 +1,7 @@
 use crate::rpc::errors::RpcError;
+
 use bundler_types::user_operation::UserOperation;
+use eyre::eyre;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -35,6 +37,18 @@ impl TryFrom<UserOps> for UserOperation {
             &value.paymaster_and_data,
             &value.signature,
         )
-        .map_err(|e| e.into())
+        .map_err(|e| RpcError::Error(eyre!(e)))
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub struct EstimateUserOpsGasResponse {
+    pub gas: String,
+}
+
+impl EstimateUserOpsGasResponse {
+    pub fn new(gas: String) -> Self {
+        EstimateUserOpsGasResponse { gas }
     }
 }
