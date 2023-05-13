@@ -2,5 +2,6 @@
 members = [
     "crates/bundler",
     "crates/contracts",
-    "crates/bundler-types"
+    "crates/bundler-types",
+    "crates/mempool"
 ]
