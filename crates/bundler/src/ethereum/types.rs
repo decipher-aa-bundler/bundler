@@ -1,7 +1,9 @@
 use crate::ethereum::errors::EthereumError;
 use crate::ethereum::EthClientHandler;
 use async_trait::async_trait;
-use ethers::providers::{Http, Provider};
+use ethers::providers::{Http, Middleware, Provider};
+use ethers::types::transaction::eip2718::TypedTransaction;
+use ethers::types::{Address, Bytes, U256};
 
 #[derive(Debug)]
 pub struct EthClient {
@@ -23,7 +25,18 @@ impl EthClient {
 
 #[async_trait]
 impl EthClientHandler for EthClient {
-    async fn calculate_gas(&self) {
-        // self.eth_provider.estimate_gas().await
+    async fn estimate_gas(
+        &self,
+        from: Address,
+        to: Address,
+        call_data: Bytes,
+    ) -> Result<U256, EthereumError> {
+        let mut tx = TypedTransaction::default();
+        tx.set_from(from).set_to(to).set_data(call_data);
+
+        self.eth_provider
+            .estimate_gas(&tx, None)
+            .await
+            .map_err(|e| EthereumError::ProviderError { msg: e.to_string() })
     }
 }

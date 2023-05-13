@@ -15,3 +15,4 @@ bundler-types = {path = "../bundler-types"}
 thiserror = "1.0.40"
 ethers = "2.0.3"
 async-trait = "0.1.68"
+eyre = "0.6.8"
