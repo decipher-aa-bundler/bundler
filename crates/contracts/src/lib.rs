@@ -18,5 +18,17 @@ pub mod ethereum {
         pub mod entry_point {
             include_abi!("IEntryPoint.rs");
         }
+
+        pub mod paymaster {
+            include_abi!("IPaymaster.rs");
+        }
+
+        pub mod stake_manager {
+            include_abi!("IStakeManager.rs");
+        }
+        #[allow(clippy::useless_conversion, clippy::module_inception)]
+        pub mod user_operation_lib {
+            include_abi!("UserOperationLib.rs");
+        }
     }
 }
