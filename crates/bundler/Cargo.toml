@@ -8,6 +8,8 @@ name = "bundler"
 path = "bin/main.rs"
 
 [dependencies]
+mempool = {path = "../mempool"}
+
 actix-web = "4.3.1"
 env_logger = "0.10.0"
 serde = {version = "1.0.160", features = ["derive"]}

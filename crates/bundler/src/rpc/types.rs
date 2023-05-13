@@ -1,6 +1,7 @@
 use crate::ethereum::types::EthClient;
 use crate::rpc::service::types::BundlerService;
 use crate::rpc::service::BundlerServiceHandler;
+use mempool::Mempool;
 
 pub struct BundlerClient {
     pub bundler_service: Box<dyn BundlerServiceHandler>,
@@ -11,6 +12,7 @@ impl BundlerClient {
         Ok(BundlerClient {
             bundler_service: Box::new(BundlerService {
                 eth_client: EthClient::new().map_err(|e| e.to_string())?,
+                mempool: Mempool::new().map_err(|e| e.to_string())?,
             }),
         })
     }
