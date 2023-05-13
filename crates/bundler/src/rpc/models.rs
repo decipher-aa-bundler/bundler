@@ -41,6 +41,27 @@ impl TryFrom<UserOps> for UserOperation {
     }
 }
 
+impl TryFrom<&UserOps> for UserOperation {
+    type Error = RpcError;
+
+    fn try_from(value: &UserOps) -> Result<Self, Self::Error> {
+        UserOperation::new(
+            &value.sender,
+            &value.nonce,
+            &value.init_code,
+            &value.call_data,
+            &value.call_gas_limit,
+            &value.verification_gas_limit,
+            &value.pre_verification_gas,
+            &value.max_fee_per_gas,
+            &value.max_priority_fee_per_gas,
+            &value.paymaster_and_data,
+            &value.signature,
+        )
+        .map_err(|e| RpcError::Error(eyre!(e)))
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct EstimateUserOpsGasResponse {
