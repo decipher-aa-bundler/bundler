@@ -1,5 +1,6 @@
 use crate::error::BundlerTypeError;
 use ethers::types::{Address, Bytes, U256};
+use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
 macro_rules! parse_value {
@@ -8,7 +9,7 @@ macro_rules! parse_value {
     };
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UserOperation {
     pub sender: Address,
     pub nonce: U256,
@@ -51,5 +52,10 @@ impl UserOperation {
             paymaster_and_data: parse_value!(Bytes, paymaster_and_data)?,
             signature: parse_value!(Bytes, signature)?,
         })
+    }
+
+    pub fn try_serialize(&self) -> Result<String, BundlerTypeError> {
+        serde_json::to_string(self)
+            .map_err(|e| BundlerTypeError::SerializeError { msg: e.to_string() })
     }
 }

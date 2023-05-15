@@ -7,10 +7,11 @@ use ethers::types::{Address, Bytes};
 use eyre::Result;
 use mempool::MempoolService;
 use std::str::FromStr;
+use std::sync::Arc;
 
 pub struct BundlerService {
     pub eth_client: Box<dyn EthClientHandler>,
-    pub mempool: Box<dyn MempoolService>,
+    pub mempool: Arc<dyn MempoolService>,
 }
 
 #[async_trait]
@@ -28,9 +29,16 @@ impl BundlerServiceHandler for BundlerService {
     }
 
     async fn send_user_operation(&self, user_ops: &UserOps, ep_addr: &str) -> Result<String> {
-        let _ep_addr = Address::from_str(ep_addr)?;
-        let _user_ops: UserOperation = user_ops.try_into()?;
+        let ep_addr = Address::from_str(ep_addr)?;
+        let sender = Address::from_str(&user_ops.sender)?;
+        let user_ops: UserOperation = user_ops.try_into()?;
 
+        self.mempool.add(ep_addr, user_ops.clone()).await?;
+
+        let _pending_ops = self
+            .mempool
+            .get_op(&ep_addr, &sender, &user_ops.nonce)
+            .await;
         Ok("".into())
     }
 }

@@ -9,6 +9,7 @@ path = "bin/main.rs"
 
 [dependencies]
 mempool = {path = "../mempool"}
+contracts = {path = "../contracts"}
 
 actix-web = "4.3.1"
 env_logger = "0.10.0"
@@ -18,3 +19,4 @@ thiserror = "1.0.40"
 ethers = "2.0.3"
 async-trait = "0.1.68"
 eyre = "0.6.8"
+log = "0.4.17"
