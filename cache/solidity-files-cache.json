@@ -34,7 +34,7 @@
               ]
             }
           },
-          "evmVersion": "london",
+          "evmVersion": "paris",
           "libraries": {}
         }
       },
@@ -71,7 +71,7 @@
               ]
             }
           },
-          "evmVersion": "london",
+          "evmVersion": "paris",
           "libraries": {}
         }
       },
@@ -108,7 +108,7 @@
               ]
             }
           },
-          "evmVersion": "london",
+          "evmVersion": "paris",
           "libraries": {}
         }
       },
@@ -147,7 +147,7 @@
               ]
             }
           },
-          "evmVersion": "london",
+          "evmVersion": "paris",
           "libraries": {}
         }
       },
@@ -184,7 +184,7 @@
               ]
             }
           },
-          "evmVersion": "london",
+          "evmVersion": "paris",
           "libraries": {}
         }
       },
@@ -219,7 +219,7 @@
               ]
             }
           },
-          "evmVersion": "london",
+          "evmVersion": "paris",
           "libraries": {}
         }
       },

@@ -6,5 +6,6 @@ use eyre::Result;
 
 #[async_trait]
 pub trait BundlerServiceHandler: Send + Sync {
-    async fn estimate_user_ops_gas(&self, _user_ops: &UserOps, _ep_addr: &str) -> Result<String>;
+    async fn estimate_user_ops_gas(&self, user_ops: &UserOps, ep_addr: &str) -> Result<String>;
+    async fn send_user_operation(&self, user_ops: &UserOps, ep_addr: &str) -> Result<String>;
 }
