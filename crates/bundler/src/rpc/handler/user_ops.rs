@@ -19,7 +19,17 @@ pub async fn estimate_user_ops_gas(
         .await
         .map_err(RpcError::Error)?;
 
-    Ok(web::Json(EstimateUserOpsGasResponse::new(gas)))
+    let pre_verification_gas = client
+        .bundler_service
+        .calc_pre_verification_gas(&user_ops)
+        .await
+        .map_err(RpcError::Error)?;
+
+    Ok(web::Json(EstimateUserOpsGasResponse::new(
+        pre_verification_gas,
+        gas,
+        "".into(),
+    )))
 }
 
 #[post("/{ep_addr}")]

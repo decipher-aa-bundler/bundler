@@ -1,15 +1,16 @@
 use crate::error::BundlerTypeError;
+use ethers::abi::AbiEncode;
+use ethers::contract::{EthAbiCodec, EthAbiType};
 use ethers::types::{Address, Bytes, U256};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
-
 macro_rules! parse_value {
     ($t:ty, $value: expr) => {
         <$t>::from_str($value).map_err(|e| BundlerTypeError::ParseError { msg: e.to_string() })
     };
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EthAbiType, EthAbiCodec)]
 pub struct UserOperation {
     pub sender: Address,
     pub nonce: U256,
@@ -57,5 +58,9 @@ impl UserOperation {
     pub fn try_serialize(&self) -> Result<String, BundlerTypeError> {
         serde_json::to_string(self)
             .map_err(|e| BundlerTypeError::SerializeError { msg: e.to_string() })
+    }
+
+    pub fn pack(&self) -> Bytes {
+        self.clone().encode().into()
     }
 }
