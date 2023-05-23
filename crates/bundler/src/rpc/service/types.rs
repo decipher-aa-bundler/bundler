@@ -8,6 +8,7 @@ use eyre::Result;
 use mempool::MempoolService;
 use std::str::FromStr;
 use std::sync::Arc;
+use ethers::providers::Middleware;
 
 const GAS_FIXED: u64 = 21000;
 const GAS_PER_USER_OP: u64 = 18300;

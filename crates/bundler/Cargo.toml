@@ -15,7 +15,6 @@ actix-web = "4.3.1"
 env_logger = "0.10.0"
 serde = {version = "1.0.160", features = ["derive"]}
 bundler-types = {path = "../bundler-types"}
-contracts = {path = "../contracts"}
 thiserror = "1.0.40"
 ethers = "2.0.3"
 async-trait = "0.1.68"
