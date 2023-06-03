@@ -6,4 +6,6 @@ pub enum EthereumError {
     ProviderError(eyre::Report),
     #[error("{0}")]
     DecodeError(eyre::Report),
+    #[error("validation failed: {reason}")]
+    ValidateError { reason: String },
 }

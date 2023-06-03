@@ -1,5 +1,3 @@
-mod user_operation;
-
 #[macro_export]
 macro_rules! include_abi {
     ($path:literal) => {

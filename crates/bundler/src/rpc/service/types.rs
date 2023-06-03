@@ -3,20 +3,12 @@ use crate::rpc::models::UserOps;
 use crate::rpc::service::BundlerServiceHandler;
 use async_trait::async_trait;
 use bundler_types::user_operation::UserOperation;
+use ethers::providers::Middleware;
 use ethers::types::{Address, Bytes};
 use eyre::Result;
 use mempool::MempoolService;
 use std::str::FromStr;
 use std::sync::Arc;
-use ethers::providers::Middleware;
-
-const GAS_FIXED: u64 = 21000;
-const GAS_PER_USER_OP: u64 = 18300;
-const GAS_PER_USER_OP_WORD: u64 = 4;
-const GAS_ZERO_BYTE: u64 = 4;
-const GAS_NON_ZERO_BYTE: u64 = 16;
-const GAS_BUNDLE_SIZE: u64 = 1;
-const GAS_SIG_SIZE: u64 = 65;
 
 pub struct BundlerService {
     pub eth_client: Box<dyn EthClientHandler>,
@@ -25,35 +17,13 @@ pub struct BundlerService {
 
 #[derive(Debug)]
 pub struct GasOverhead {
-    fixed: u32,
-    per_user_op: u32,
-    per_user_op_word: u32,
-    zero_byte: u32,
-    non_zero_byte: u32,
-    bundle_size: u32,
-    sig_size: u32,
-}
-
-impl GasOverhead {
-    pub fn new(
-        fixed: u32,
-        per_user_op: u32,
-        per_user_op_word: u32,
-        zero_byte: u32,
-        non_zero_byte: u32,
-        bundle_size: u32,
-        sig_size: u32,
-    ) -> Self {
-        Self {
-            fixed,
-            per_user_op,
-            per_user_op_word,
-            zero_byte,
-            non_zero_byte,
-            bundle_size,
-            sig_size,
-        }
-    }
+    fixed: u64,
+    per_user_op: u64,
+    per_user_op_word: u64,
+    zero_byte: u64,
+    non_zero_byte: u64,
+    bundle_size: u64,
+    sig_size: u64,
 }
 
 impl Default for GasOverhead {
@@ -106,10 +76,12 @@ impl BundlerServiceHandler for BundlerService {
         let non_zero = bytes_user_ops.len() as u64 - zeros;
         let words = ((packed_user_operation.len() + 31) / 32) as u64;
 
-        Ok((zeros * GAS_ZERO_BYTE
-            + non_zero * GAS_NON_ZERO_BYTE
-            + GAS_FIXED / GAS_BUNDLE_SIZE
-            + words * GAS_PER_USER_OP_WORD)
+        let gas_overhead = GasOverhead::default();
+
+        Ok((zeros * gas_overhead.zero_byte
+            + non_zero * gas_overhead.non_zero_byte
+            + GAS_FIXED / gas_overhead.fixed
+            + words * gas_overhead.per_user_op_word)
             .to_string())
     }
 }
