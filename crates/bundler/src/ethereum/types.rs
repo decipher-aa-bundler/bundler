@@ -14,30 +14,32 @@ use std::sync::Arc;
 
 #[derive(Debug)]
 pub struct EthClient {
-    pub eth_provider: Arc<Provider<Http>>,
-    pub entry_point: IEntryPoint<SignerMiddleware<Provider<Http>, LocalWallet>>,
+    eth_provider: Arc<Provider<Http>>,
+    entry_point: IEntryPoint<SignerMiddleware<Provider<Http>, LocalWallet>>,
 }
 
-#[allow(clippy::new_ret_no_self)]
 impl EthClient {
-    pub fn new(ep_addr: &str, signer: &str) -> Result<Box<dyn EthClientHandler>, EthereumError> {
+    pub fn new(ep_addr: &str, signer: &[u8]) -> Result<EthClient, EthereumError> {
         let eth_provider = Provider::<Http>::try_from(
             // TODO: url 하드코딩 config로 빼기
-            "https://goerli.blockpi.network/v1/rpc/public",
+            "https://ethereum-goerli.publicnode.com",
         )
         .map_err(|e| EthereumError::ProviderError(e.to_string()))?;
-        let ep_addr =
-            Address::from_str(ep_addr).map_err(|e| EthereumError::DecodeError(e.to_string()))?;
-        let signer =
-            LocalWallet::from_str(signer).map_err(|e| EthereumError::DecodeError(e.to_string()))?;
+        let ep_addr = Address::from_str(ep_addr).map_err(|e| {
+            EthereumError::DecodeError(format!("ep_addr decode failed: {}", e.to_string()))
+        })?;
 
-        Ok(Box::new(EthClient {
+        let signer = LocalWallet::from_bytes(signer).map_err(|e| {
+            EthereumError::DecodeError(format!("failed to create signer key: {}", e.to_string()))
+        })?;
+
+        Ok(EthClient {
             eth_provider: Arc::new(eth_provider.clone()),
             entry_point: IEntryPoint::new(
                 ep_addr,
                 Arc::new(SignerMiddleware::new(eth_provider, signer)),
             ),
-        }))
+        })
     }
 }
 
