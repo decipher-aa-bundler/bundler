@@ -1,6 +1,7 @@
 use crate::ethereum::errors::EthereumError;
 use crate::ethereum::EthClientHandler;
 use crate::rpc::models::UserOps;
+
 use async_trait::async_trait;
 use bundler_types::user_operation::UserOperation;
 use contracts::bindings::abi::entry_point::IEntryPoint;
@@ -18,6 +19,29 @@ pub struct EthClient {
     entry_point: IEntryPoint<SignerMiddleware<Provider<Http>, LocalWallet>>,
 }
 
+#[derive(Debug)]
+pub struct GasOverhead {
+    fixed: u64,
+    per_user_op: u64,
+    per_user_op_word: u64,
+    zero_byte: u64,
+    non_zero_byte: u64,
+    bundle_size: u64,
+}
+
+impl Default for GasOverhead {
+    fn default() -> Self {
+        Self {
+            fixed: 21000,
+            per_user_op: 18300,
+            per_user_op_word: 4,
+            zero_byte: 4,
+            non_zero_byte: 16,
+            bundle_size: 1,
+        }
+    }
+}
+
 impl EthClient {
     pub fn new(ep_addr: &str, signer: &[u8]) -> Result<EthClient, EthereumError> {
         let eth_provider = Provider::<Http>::try_from(
@@ -25,12 +49,11 @@ impl EthClient {
             "https://ethereum-goerli.publicnode.com",
         )
         .map_err(|e| EthereumError::ProviderError(e.to_string()))?;
-        let ep_addr = Address::from_str(ep_addr).map_err(|e| {
-            EthereumError::DecodeError(format!("ep_addr decode failed: {}", e.to_string()))
-        })?;
+        let ep_addr = Address::from_str(ep_addr)
+            .map_err(|e| EthereumError::DecodeError(format!("ep_addr decode failed: {}", e)))?;
 
         let signer = LocalWallet::from_bytes(signer).map_err(|e| {
-            EthereumError::DecodeError(format!("failed to create signer key: {}", e.to_string()))
+            EthereumError::DecodeError(format!("failed to create signer key: {}", e))
         })?;
 
         Ok(EthClient {
@@ -60,19 +83,23 @@ impl EthClientHandler for EthClient {
             .map_err(|e| EthereumError::ProviderError(e.to_string()))
     }
 
-    async fn simulate_validation_gas(
-        &self,
-        user_ops: &UserOps,
-        _ep_addr: &str,
-    ) -> Result<U256, EthereumError> {
-        let user_ops = UserOperation::try_from(user_ops)
+    async fn calc_pre_verification_gas(&self, user_ops: &UserOps) -> Result<U256, EthereumError> {
+        let user_operation = UserOperation::try_from(user_ops)
             .map_err(|e| EthereumError::DecodeError(e.to_string()))?;
-        let _simulation_result = self
-            .entry_point
-            .simulate_validation(user_ops.into())
-            .call()
-            .await;
+        let packed_user_operation = user_operation.pack();
+        let bytes_user_ops = packed_user_operation.to_vec();
+        let zeros = bytes_user_ops.iter().filter(|i| **i == 0).count() as u64;
 
-        todo!("simulation result parse")
+        let non_zero = bytes_user_ops.len() as u64 - zeros;
+        let words = ((packed_user_operation.len() + 31) / 32) as u64;
+
+        let gas_overhead = GasOverhead::default();
+
+        Ok((zeros * gas_overhead.zero_byte
+            + non_zero * gas_overhead.non_zero_byte
+            + gas_overhead.fixed / gas_overhead.bundle_size
+            + gas_overhead.per_user_op
+            + words * gas_overhead.per_user_op_word)
+            .into())
     }
 }
