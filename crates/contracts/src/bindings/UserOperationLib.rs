@@ -335,7 +335,7 @@ pub mod user_operation_lib {
         ///
         /// Generate contract bindings with `abigen!` and deploy a new contract instance.
         ///
-        /// *Note*: this requires a `bytecode` and `abi` object in the `greeter.json` artifact.
+        /// *Note*: this requires a `bytecode` and `bindings` object in the `greeter.json` artifact.
         ///
         /// ```ignore
         /// # async fn deploy<M: ethers::providers::Middleware>(client: ::std::sync::Arc<M>) {

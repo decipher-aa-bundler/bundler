@@ -2,6 +2,10 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum EthereumError {
-    #[error("eth client error: {msg}")]
-    ProviderError { msg: String },
+    #[error("{0}")]
+    ProviderError(eyre::Report),
+    #[error("{0}")]
+    DecodeError(eyre::Report),
+    #[error("validation failed: {reason}")]
+    ValidateError { reason: String },
 }

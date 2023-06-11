@@ -1,9 +1,11 @@
 use crate::error::BundlerTypeError;
+use contracts::bindings::abi::entry_point;
 use ethers::abi::AbiEncode;
 use ethers::contract::{EthAbiCodec, EthAbiType};
 use ethers::types::{Address, Bytes, U256};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
+
 macro_rules! parse_value {
     ($t:ty, $value: expr) => {
         <$t>::from_str($value).map_err(|e| BundlerTypeError::ParseError { msg: e.to_string() })
@@ -62,5 +64,23 @@ impl UserOperation {
 
     pub fn pack(&self) -> Bytes {
         self.clone().encode().into()
+    }
+}
+
+impl From<UserOperation> for entry_point::UserOperation {
+    fn from(value: UserOperation) -> Self {
+        entry_point::UserOperation {
+            sender: value.sender,
+            nonce: value.nonce,
+            init_code: value.init_code,
+            call_data: value.call_data,
+            call_gas_limit: value.call_gas_limit,
+            verification_gas_limit: value.verification_gas_limit,
+            pre_verification_gas: value.pre_verification_gas,
+            max_fee_per_gas: value.max_fee_per_gas,
+            max_priority_fee_per_gas: value.max_priority_fee_per_gas,
+            paymaster_and_data: value.paymaster_and_data,
+            signature: value.signature,
+        }
     }
 }
