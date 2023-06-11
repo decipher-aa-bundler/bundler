@@ -6,6 +6,7 @@ mod eth_client_test {
     use ethers::types::{Address, Bytes};
     use std::str::FromStr;
     use test_context::{test_context, AsyncTestContext};
+    use bundler::rpc::models::UserOps;
 
     struct EthClientContext {
         eth_client: EthClient,
@@ -41,8 +42,25 @@ mod eth_client_test {
 
     #[test_context(EthClientContext)]
     #[tokio::test]
-    async fn test_simulate_validation_gas(ctx: &EthClientContext) {
+    async fn test_calc_pre_verification_gas(ctx: &EthClientContext) {
+        let user_ops = UserOps {
+            sender: "0xfFec17D1920455f6AD90E578269832d5c442D59C".to_string(),
+            nonce: "36".to_string(),
+            init_code: "0x".to_string(),
+            call_data: "0x0565bb6700000000000000000000000017a62ab5da63f3570179e87cb8711de28a0f8412000000000000000000000000000000000000000000000000016345785d8a000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000".to_string(),
+            call_gas_limit: "1500000".to_string(),
+            verification_gas_limit: "1500000".to_string(),
+            pre_verification_gas: "65000".to_string(),
+            max_fee_per_gas: "1500000026".to_string(),
+            max_priority_fee_per_gas: "1500000000".to_string(),
+            paymaster_and_data: "0x".to_string(),
+            signature: "0x561a6befd401331cd263d1db2e717a0176945d5496f8844aecc5dd37959233a359b141e6e1662decd56f65248de4197f794ed82a7401fcdef2c2b2a42f359fe61b".to_string(),
+        };
 
-        // ctx.eth_client.simulate_validation_gas().await.unwrap();
+        let res = ctx.eth_client.calc_pre_verification_gas(
+            &user_ops
+        ).await.unwrap();
+
+        println!("{:?}", res);
     }
 }

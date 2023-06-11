@@ -84,16 +84,20 @@ impl EthClientHandler for EthClient {
     }
 
     async fn calc_pre_verification_gas(&self, user_ops: &UserOps) -> Result<U256, EthereumError> {
-        let user_operation = UserOperation::try_from(user_ops)
+        let mut user_operation = UserOperation::try_from(user_ops)
             .map_err(|e| EthereumError::DecodeError(e.to_string()))?;
+
+        let gas_overhead = GasOverhead::default();
+        // dummy value
+        user_operation.pre_verification_gas = gas_overhead.fixed.into();
+        // dummy signature
+        user_operation.signature = Bytes::from_str("0x").unwrap();
+
         let packed_user_operation = user_operation.pack();
         let bytes_user_ops = packed_user_operation.to_vec();
         let zeros = bytes_user_ops.iter().filter(|i| **i == 0).count() as u64;
-
         let non_zero = bytes_user_ops.len() as u64 - zeros;
         let words = ((packed_user_operation.len() + 31) / 32) as u64;
-
-        let gas_overhead = GasOverhead::default();
 
         Ok((zeros * gas_overhead.zero_byte
             + non_zero * gas_overhead.non_zero_byte
