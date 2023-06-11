@@ -3,7 +3,6 @@ use crate::rpc::models::UserOps;
 use crate::rpc::service::BundlerServiceHandler;
 use async_trait::async_trait;
 use bundler_types::user_operation::UserOperation;
-use ethers::providers::Middleware;
 use ethers::types::{Address, Bytes};
 use eyre::Result;
 use mempool::MempoolService;
@@ -23,7 +22,6 @@ pub struct GasOverhead {
     zero_byte: u64,
     non_zero_byte: u64,
     bundle_size: u64,
-    sig_size: u64,
 }
 
 impl Default for GasOverhead {
@@ -35,7 +33,6 @@ impl Default for GasOverhead {
             zero_byte: 4,
             non_zero_byte: 16,
             bundle_size: 1,
-            sig_size: 65,
         }
     }
 }
@@ -72,7 +69,8 @@ impl BundlerServiceHandler for BundlerService {
         let user_operation: UserOperation = user_ops.try_into()?;
         let packed_user_operation = user_operation.pack();
         let bytes_user_ops = packed_user_operation.to_vec();
-        let zeros = bytes_user_ops.iter().map(|i| *i == 0).count() as u64;
+        let zeros = bytes_user_ops.iter().filter(|i| **i == 0).count() as u64;
+
         let non_zero = bytes_user_ops.len() as u64 - zeros;
         let words = ((packed_user_operation.len() + 31) / 32) as u64;
 
@@ -80,7 +78,8 @@ impl BundlerServiceHandler for BundlerService {
 
         Ok((zeros * gas_overhead.zero_byte
             + non_zero * gas_overhead.non_zero_byte
-            + GAS_FIXED / gas_overhead.fixed
+            + gas_overhead.fixed / gas_overhead.bundle_size
+            + gas_overhead.per_user_op
             + words * gas_overhead.per_user_op_word)
             .to_string())
     }

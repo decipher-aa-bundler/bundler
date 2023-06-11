@@ -27,7 +27,7 @@ pub async fn new_server() {
 }
 
 fn new_app_data(mempool: Arc<dyn MempoolService>) -> Result<web::Data<BundlerClient>, String> {
-    Ok(web::Data::new(BundlerClient::new(mempool)?))
+    Ok(web::Data::new(BundlerClient::new("", "", mempool)?))
 }
 
 fn new_service() -> actix_web::Scope {

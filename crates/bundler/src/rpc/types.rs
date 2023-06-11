@@ -9,10 +9,14 @@ pub struct BundlerClient {
 }
 
 impl BundlerClient {
-    pub fn new(mempool: Arc<dyn MempoolService>) -> Result<BundlerClient, String> {
+    pub fn new(
+        ep_addr: &str,
+        signer: &str,
+        mempool: Arc<dyn MempoolService>,
+    ) -> Result<BundlerClient, String> {
         Ok(BundlerClient {
             bundler_service: Box::new(BundlerService {
-                eth_client: EthClient::new().map_err(|e| e.to_string())?,
+                eth_client: EthClient::new(ep_addr, signer).map_err(|e| e.to_string())?,
                 mempool,
             }),
         })

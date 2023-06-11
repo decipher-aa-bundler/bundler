@@ -3,9 +3,9 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 pub enum EthereumError {
     #[error("{0}")]
-    ProviderError(eyre::Report),
+    ProviderError(String),
     #[error("{0}")]
-    DecodeError(eyre::Report),
-    #[error("validation failed: {reason}")]
-    ValidateError { reason: String },
+    DecodeError(String),
+    #[error("{0}")]
+    ValidateError(String),
 }

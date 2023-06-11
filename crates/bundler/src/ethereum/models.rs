@@ -1,8 +1,6 @@
 use crate::ethereum::errors::EthereumError;
 use contracts::bindings::abi::entry_point;
-use ethers::prelude::state;
-use ethers::types::{Bytes, U256};
-use ethers::utils::Units::Ether;
+use ethers::types::{Address, Bytes, U256};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 pub trait ValidateSimulation {
@@ -23,24 +21,22 @@ impl ValidateSimulation for ReturnInfo {
     fn validate(&self) -> Result<(), EthereumError> {
         let now: u64 = SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .map_err(|e| -> EthereumError::ValidateError { reason: e })
+            .map_err(|e| EthereumError::ProviderError(e.to_string()))?
             .as_secs();
 
         if self.sig_failed {
-            return Err(EthereumError::ValidateError {
-                reason: String::from("sig failed"),
-            });
+            return Err(EthereumError::ValidateError("sig failed".to_string()));
         }
         if now < self.valid_after {
-            return Err(EthereumError::ValidateError {
-                reason: String::from("too early to get allowance"),
-            });
+            return Err(EthereumError::ValidateError(
+                "too early to get allowance".to_string(),
+            ));
         }
 
         if now > self.valid_until {
-            return Err(EthereumError::ValidateError {
-                reason: String::from("allowance expired"),
-            });
+            return Err(EthereumError::ValidateError(
+                "allowance expired".to_string(),
+            ));
         }
 
         Ok(())
@@ -56,15 +52,15 @@ pub struct SenderInfo {
 impl ValidateSimulation for SenderInfo {
     fn validate(&self) -> Result<(), EthereumError> {
         if self.stake < U256::exp10(18) {
-            return Err(EthereumError::ValidateError {
-                reason: String::from("insufficient stake amount"),
-            });
+            return Err(EthereumError::ValidateError(String::from(
+                "insufficient stake amount",
+            )));
         }
 
         if self.unstake_delay_sec < U256::from(1) {
-            return Err(EthereumError::ValidateError {
-                reason: String::from("insufficient stake time"),
-            });
+            return Err(EthereumError::ValidateError(String::from(
+                "insufficient stake time",
+            )));
         }
 
         Ok(())
@@ -80,15 +76,15 @@ pub struct FactoryInfo {
 impl ValidateSimulation for FactoryInfo {
     fn validate(&self) -> Result<(), EthereumError> {
         if self.stake < U256::exp10(18) {
-            return Err(EthereumError::ValidateError {
-                reason: String::from("insufficient stake amount"),
-            });
+            return Err(EthereumError::ValidateError(String::from(
+                "insufficient stake amount",
+            )));
         }
 
         if self.unstake_delay_sec < U256::from(1) {
-            return Err(EthereumError::ValidateError {
-                reason: String::from("insufficient stake time"),
-            });
+            return Err(EthereumError::ValidateError(String::from(
+                "insufficient stake time",
+            )));
         }
 
         Ok(())
@@ -104,15 +100,15 @@ pub struct PaymasterInfo {
 impl ValidateSimulation for PaymasterInfo {
     fn validate(&self) -> Result<(), EthereumError> {
         if self.stake < U256::exp10(18) {
-            return Err(EthereumError::ValidateError {
-                reason: String::from("insufficient stake amount"),
-            });
+            return Err(EthereumError::ValidateError(String::from(
+                "insufficient stake amount",
+            )));
         }
 
         if self.unstake_delay_sec < U256::from(1) {
-            return Err(EthereumError::ValidateError {
-                reason: String::from("insufficient stake time"),
-            });
+            return Err(EthereumError::ValidateError(String::from(
+                "insufficient stake time",
+            )));
         }
 
         Ok(())
@@ -121,6 +117,7 @@ impl ValidateSimulation for PaymasterInfo {
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct AggregatorInfo {
+    pub address: Address,
     pub stake: U256,
     pub unstake_delay_sec: U256,
 }
@@ -128,15 +125,15 @@ pub struct AggregatorInfo {
 impl ValidateSimulation for AggregatorInfo {
     fn validate(&self) -> Result<(), EthereumError> {
         if self.stake < U256::exp10(18) {
-            return Err(EthereumError::ValidateError {
-                reason: String::from("insufficient stake amount"),
-            });
+            return Err(EthereumError::ValidateError(String::from(
+                "insufficient stake amount",
+            )));
         }
 
         if self.unstake_delay_sec < U256::from(1) {
-            return Err(EthereumError::ValidateError {
-                reason: String::from("insufficient stake time"),
-            });
+            return Err(EthereumError::ValidateError(String::from(
+                "insufficient stake time",
+            )));
         }
 
         Ok(())
@@ -186,7 +183,7 @@ impl From<ValidationResult> for entry_point::ValidationResult {
 
 impl From<ValidationResultWithAggregator> for entry_point::ValidationResultWithAggregation {
     fn from(value: ValidationResultWithAggregator) -> Self {
-        entry_point::ValidationResultWithAggregator {
+        entry_point::ValidationResultWithAggregation {
             return_info: (
                 value.return_info.pre_op_gas,
                 value.return_info.prefund,
@@ -205,8 +202,11 @@ impl From<ValidationResultWithAggregator> for entry_point::ValidationResultWithA
                 value.paymaster_info.unstake_delay_sec,
             ),
             aggregator_info: (
-                value.aggregator_info.stake,
-                value.aggregator_info.unstake_delay_sec,
+                value.aggregator_info.address,
+                (
+                    value.aggregator_info.stake,
+                    value.aggregator_info.unstake_delay_sec,
+                ),
             ),
         }
     }
