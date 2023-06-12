@@ -3,7 +3,9 @@ pub mod models;
 pub mod types;
 
 use crate::ethereum::errors::EthereumError;
-use crate::rpc::models::UserOps;
+
+use bundler_types::user_operation::UserOperation;
+
 use async_trait::async_trait;
 use ethers::types::{Address, Bytes, U256};
 
@@ -15,9 +17,11 @@ pub trait EthClientHandler: Send + Sync {
         to: Address,
         call_data: Bytes,
     ) -> Result<U256, EthereumError>;
-    async fn simulate_validation_gas(
+
+    async fn calc_pre_verification_gas(
         &self,
-        _user_ops: &UserOps,
-        _ep_addr: &str,
+        user_ops: &UserOperation,
     ) -> Result<U256, EthereumError>;
+
+    async fn simulate_validation(&self, user_ops: UserOperation) -> Result<U256, EthereumError>;
 }

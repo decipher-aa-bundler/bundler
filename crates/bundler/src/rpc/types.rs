@@ -16,7 +16,9 @@ impl BundlerClient {
     ) -> Result<BundlerClient, String> {
         Ok(BundlerClient {
             bundler_service: Box::new(BundlerService {
-                eth_client: EthClient::new(ep_addr, signer).map_err(|e| e.to_string())?,
+                eth_client: Box::new(
+                    EthClient::new(ep_addr, signer.as_bytes()).map_err(|e| e.to_string())?,
+                ),
                 mempool,
             }),
         })

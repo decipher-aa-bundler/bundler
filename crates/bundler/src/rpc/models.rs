@@ -65,21 +65,21 @@ impl TryFrom<&UserOps> for UserOperation {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct EstimateUserOpsGasResponse {
-    pub pre_verification_gas: String,
-    pub verification_gas_limit: String,
     pub call_gas_limit: String,
+    pub pre_verification_gas: String,
+    pub verification_gas: String,
 }
 
 impl EstimateUserOpsGasResponse {
     pub fn new(
-        pre_verification_gas: String,
-        verification_gas_limit: String,
         call_gas_limit: String,
+        pre_verification_gas: String,
+        verification_gas: String,
     ) -> Self {
         EstimateUserOpsGasResponse {
-            pre_verification_gas,
-            verification_gas_limit,
             call_gas_limit,
+            pre_verification_gas,
+            verification_gas,
         }
     }
 }

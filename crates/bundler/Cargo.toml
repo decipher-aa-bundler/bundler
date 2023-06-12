@@ -20,3 +20,8 @@ ethers = "2.0.3"
 async-trait = "0.1.68"
 eyre = "0.6.8"
 log = "0.4.17"
+hex = "0.4.3"
+
+[dev-dependencies]
+tokio = {version = "1.28.2", features = ["test-util", "macros"]}
+test-context = "0.1.4"
