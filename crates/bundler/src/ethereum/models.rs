@@ -181,6 +181,33 @@ impl From<ValidationResult> for entry_point::ValidationResult {
     }
 }
 
+impl From<entry_point::ValidationResult> for ValidationResult {
+    fn from(value: entry_point::ValidationResult) -> Self {
+        ValidationResult {
+            return_info: ReturnInfo {
+                pre_op_gas: value.return_info.0,
+                prefund: value.return_info.1,
+                sig_failed: value.return_info.2,
+                valid_after: value.return_info.3,
+                valid_until: value.return_info.4,
+                paymaster_context: value.return_info.5,
+            },
+            sender_info: SenderInfo {
+                stake: value.sender_info.0,
+                unstake_delay_sec: value.sender_info.1,
+            },
+            factory_info: FactoryInfo {
+                stake: value.factory_info.0,
+                unstake_delay_sec: value.factory_info.1,
+            },
+            paymaster_info: PaymasterInfo {
+                stake: value.paymaster_info.0,
+                unstake_delay_sec: value.paymaster_info.1,
+            },
+        }
+    }
+}
+
 impl From<ValidationResultWithAggregator> for entry_point::ValidationResultWithAggregation {
     fn from(value: ValidationResultWithAggregator) -> Self {
         entry_point::ValidationResultWithAggregation {

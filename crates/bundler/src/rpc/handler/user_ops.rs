@@ -1,5 +1,5 @@
 use crate::rpc::errors::RpcError;
-use crate::rpc::models::{EstimateUserOpsGasResponse, UserOps};
+use crate::rpc::models::UserOps;
 use crate::rpc::types::BundlerClient;
 
 use actix_web::{post, web, HttpResponse, Responder};

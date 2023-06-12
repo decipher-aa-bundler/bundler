@@ -1,22 +1,24 @@
-use crate::ethereum::errors::EthereumError;
-use crate::ethereum::EthClientHandler;
-use crate::rpc::models::UserOps;
+use crate::ethereum::{errors::EthereumError, models::ValidationResult, EthClientHandler};
 
 use async_trait::async_trait;
 use bundler_types::user_operation::UserOperation;
-use contracts::bindings::abi::entry_point::IEntryPoint;
-use ethers::middleware::SignerMiddleware;
-use ethers::providers::{Http, Middleware, Provider};
-use ethers::signers::LocalWallet;
-use ethers::types::transaction::eip2718::TypedTransaction;
-use ethers::types::{Address, Bytes, U256};
-use std::str::FromStr;
-use std::sync::Arc;
+use contracts::bindings::abi::entry_point::{IEntryPoint, IEntryPointErrors};
+
+use ethers::{
+    contract::ContractError,
+    middleware::SignerMiddleware,
+    providers::{Http, Middleware, Provider},
+    signers::LocalWallet,
+    types::{transaction::eip2718::TypedTransaction, Address, Bytes, U256},
+};
+
+use ethers::abi::AbiDecode;
+use std::{str::FromStr, sync::Arc};
 
 #[derive(Debug)]
 pub struct EthClient {
     eth_provider: Arc<Provider<Http>>,
-    entry_point: IEntryPoint<SignerMiddleware<Provider<Http>, LocalWallet>>,
+    pub entry_point: IEntryPoint<SignerMiddleware<Provider<Http>, LocalWallet>>,
 }
 
 #[derive(Debug)]
@@ -83,11 +85,12 @@ impl EthClientHandler for EthClient {
             .map_err(|e| EthereumError::ProviderError(e.to_string()))
     }
 
-    async fn calc_pre_verification_gas(&self, user_ops: &UserOps) -> Result<U256, EthereumError> {
-        let mut user_operation = UserOperation::try_from(user_ops)
-            .map_err(|e| EthereumError::DecodeError(e.to_string()))?;
-
+    async fn calc_pre_verification_gas(
+        &self,
+        user_ops: &UserOperation,
+    ) -> Result<U256, EthereumError> {
         let gas_overhead = GasOverhead::default();
+        let mut user_operation = user_ops.clone();
         // dummy value
         user_operation.pre_verification_gas = gas_overhead.fixed.into();
         // dummy signature
@@ -105,5 +108,43 @@ impl EthClientHandler for EthClient {
             + gas_overhead.per_user_op
             + words * gas_overhead.per_user_op_word)
             .into())
+    }
+
+    async fn simulate_validation(&self, user_ops: UserOperation) -> Result<U256, EthereumError> {
+        let validation_call = self.entry_point.simulate_validation(user_ops.into());
+        let res = validation_call.call().await;
+        if res.is_ok() {
+            return Err(EthereumError::ValidateError(String::from(
+                "simulate_validation must be reverted",
+            )));
+        }
+
+        let revert_msg = match res.err().unwrap() {
+            ContractError::Revert(msg) => msg,
+            other => {
+                return Err(EthereumError::ValidateError(format!(
+                    "error is not reverted: {:?}",
+                    other
+                )))
+            }
+        };
+
+        match IEntryPointErrors::decode(revert_msg.as_ref())
+            .map_err(|e| EthereumError::DecodeError(e.to_string()))?
+        {
+            IEntryPointErrors::ValidationResult(v) => {
+                let validation_result: ValidationResult = v.into();
+                // check validation result is ok
+                // uncomment below when needed
+
+                // validation_result.validate()?;
+                Ok(validation_result.return_info.pre_op_gas)
+            }
+
+            other => Err(EthereumError::DecodeError(format!(
+                "expected validation error: {}",
+                other
+            ))),
+        }
     }
 }

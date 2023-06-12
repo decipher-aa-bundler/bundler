@@ -67,19 +67,19 @@ impl TryFrom<&UserOps> for UserOperation {
 pub struct EstimateUserOpsGasResponse {
     pub call_gas_limit: String,
     pub pre_verification_gas: String,
-    pub verification_gas_limit: String,
+    pub verification_gas: String,
 }
 
 impl EstimateUserOpsGasResponse {
     pub fn new(
         call_gas_limit: String,
         pre_verification_gas: String,
-        verification_gas_limit: String,
+        verification_gas: String,
     ) -> Self {
         EstimateUserOpsGasResponse {
             call_gas_limit,
             pre_verification_gas,
-            verification_gas_limit,
+            verification_gas,
         }
     }
 }
