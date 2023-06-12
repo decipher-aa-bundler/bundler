@@ -119,6 +119,7 @@ impl EthClientHandler for EthClient {
             )));
         }
 
+        // safe: already check res is err above
         let revert_msg = match res.err().unwrap() {
             ContractError::Revert(msg) => msg,
             other => {
