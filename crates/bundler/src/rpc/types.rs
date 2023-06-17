@@ -2,6 +2,7 @@ use crate::ethereum::types::EthClient;
 use crate::rpc::service::types::BundlerService;
 use crate::rpc::service::BundlerServiceHandler;
 
+use crate::config::Config;
 use mempool::MempoolService;
 
 pub struct BundlerClient {
@@ -9,15 +10,12 @@ pub struct BundlerClient {
 }
 
 impl BundlerClient {
-    pub fn new(
-        ep_addr: &str,
-        signer: &str,
-        mempool: Box<dyn MempoolService>,
-    ) -> Result<BundlerClient, String> {
+    pub fn new(config: &Config, mempool: Box<dyn MempoolService>) -> Result<BundlerClient, String> {
         Ok(BundlerClient {
             bundler_service: Box::new(BundlerService {
                 eth_client: Box::new(
-                    EthClient::new(ep_addr, signer.as_bytes()).map_err(|e| e.to_string())?,
+                    EthClient::new(&config.eth_rpc, &config.ep_addr, &config.signer)
+                        .map_err(|e| e.to_string())?,
                 ),
                 mempool,
             }),

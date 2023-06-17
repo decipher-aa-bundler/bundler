@@ -45,16 +45,17 @@ impl Default for GasOverhead {
 }
 
 impl EthClient {
-    pub fn new(ep_addr: &str, signer: &[u8]) -> Result<EthClient, EthereumError> {
-        let eth_provider = Provider::<Http>::try_from(
-            // TODO: url 하드코딩 config로 빼기
-            "https://ethereum-goerli.publicnode.com",
-        )
-        .map_err(|e| EthereumError::ProviderError(e.to_string()))?;
+    pub fn new(eth_rpc: &str, ep_addr: &str, signer: &str) -> Result<EthClient, EthereumError> {
+        let eth_provider = Provider::<Http>::try_from(eth_rpc)
+            .map_err(|e| EthereumError::ProviderError(e.to_string()))?;
         let ep_addr = Address::from_str(ep_addr)
             .map_err(|e| EthereumError::DecodeError(format!("ep_addr decode failed: {}", e)))?;
 
-        let signer = LocalWallet::from_bytes(signer).map_err(|e| {
+        let signer = hex::decode(signer).map_err(|e| {
+            EthereumError::DecodeError(format!("failed to decode signer private key: {}", e))
+        })?;
+
+        let signer = LocalWallet::from_bytes(&signer).map_err(|e| {
             EthereumError::DecodeError(format!("failed to create signer key: {}", e))
         })?;
 
