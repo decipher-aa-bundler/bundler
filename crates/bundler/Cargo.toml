@@ -8,20 +8,20 @@ name = "bundler"
 path = "bin/main.rs"
 
 [dependencies]
-mempool = {path = "../mempool"}
-contracts = {path = "../contracts"}
+bundler-types = { path = "../bundler-types" }
+contracts = { path = "../contracts" }
+mempool = { path = "../mempool" }
 
 actix-web = "4.3.1"
-env_logger = "0.10.0"
-serde = {version = "1.0.160", features = ["derive"]}
-bundler-types = {path = "../bundler-types"}
-thiserror = "1.0.40"
-ethers = "2.0.3"
 async-trait = "0.1.68"
+env_logger = "0.10.0"
+ethers = "2.0.3"
 eyre = "0.6.8"
-log = "0.4.17"
 hex = "0.4.3"
+log = "0.4.17"
+serde = { version = "1.0.160", features = ["derive"] }
+thiserror = "1.0.40"
 
 [dev-dependencies]
-tokio = {version = "1.28.2", features = ["test-util", "macros"]}
 test-context = "0.1.4"
+tokio = { version = "1.28.2", features = ["test-util", "macros"] }

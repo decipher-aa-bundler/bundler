@@ -6,7 +6,7 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 pub enum RpcError {
     #[error("{0}")]
-    Error(eyre::Report),
+    Error(String),
 }
 
 impl ResponseError for RpcError {

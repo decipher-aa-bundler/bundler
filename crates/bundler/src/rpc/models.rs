@@ -1,9 +1,10 @@
 use crate::rpc::errors::RpcError;
 
 use bundler_types::user_operation::UserOperation;
-use eyre::eyre;
 use serde::{Deserialize, Serialize};
 
+/// All fields must be set as hex values
+/// Empty bytes block must be set to 0x
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub struct UserOps {
@@ -37,7 +38,7 @@ impl TryFrom<UserOps> for UserOperation {
             &value.paymaster_and_data,
             &value.signature,
         )
-        .map_err(|e| RpcError::Error(eyre!(e)))
+        .map_err(|e| RpcError::Error(e.to_string()))
     }
 }
 
@@ -58,7 +59,7 @@ impl TryFrom<&UserOps> for UserOperation {
             &value.paymaster_and_data,
             &value.signature,
         )
-        .map_err(|e| RpcError::Error(eyre!(e)))
+        .map_err(|e| RpcError::Error(e.to_string()))
     }
 }
 

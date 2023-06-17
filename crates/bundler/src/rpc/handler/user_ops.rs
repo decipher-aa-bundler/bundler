@@ -17,7 +17,7 @@ pub async fn estimate_user_ops_gas(
         .bundler_service
         .estimate_user_ops_gas(&user_ops, &ep_addr)
         .await
-        .map_err(RpcError::Error)?;
+        .map_err(|e| RpcError::Error(e.to_string()))?;
 
     Ok(web::Json(gas))
 }
@@ -35,7 +35,7 @@ pub async fn send_user_operation(
         .bundler_service
         .send_user_operation(&user_ops, &ep_addr)
         .await
-        .map_err(RpcError::Error)?;
+        .map_err(|e| RpcError::Error(e.to_string()))?;
 
     Ok(HttpResponse::Ok())
 }

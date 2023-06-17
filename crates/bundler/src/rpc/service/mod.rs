@@ -11,5 +11,5 @@ pub trait BundlerServiceHandler: Send + Sync {
         user_ops: &UserOps,
         ep_addr: &str,
     ) -> Result<EstimateUserOpsGasResponse>;
-    async fn send_user_operation(&self, user_ops: &UserOps, ep_addr: &str) -> Result<String>;
+    async fn send_user_operation(&self, user_ops: &UserOps, ep_addr: &str) -> Result<()>;
 }

@@ -1,8 +1,8 @@
 use crate::ethereum::types::EthClient;
 use crate::rpc::service::types::BundlerService;
 use crate::rpc::service::BundlerServiceHandler;
+
 use mempool::MempoolService;
-use std::sync::Arc;
 
 pub struct BundlerClient {
     pub bundler_service: Box<dyn BundlerServiceHandler>,
@@ -12,7 +12,7 @@ impl BundlerClient {
     pub fn new(
         ep_addr: &str,
         signer: &str,
-        mempool: Arc<dyn MempoolService>,
+        mempool: Box<dyn MempoolService>,
     ) -> Result<BundlerClient, String> {
         Ok(BundlerClient {
             bundler_service: Box::new(BundlerService {

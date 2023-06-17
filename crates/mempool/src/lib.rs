@@ -1,80 +1,70 @@
 pub mod errors;
-pub mod utils;
+mod types;
 
-use crate::errors::MempoolError;
-use crate::utils::get_unique_key;
+use std::collections::BinaryHeap;
+use std::sync::{Arc, RwLock};
+
+use crate::types::UserOpsWithEpAddr;
 use async_trait::async_trait;
 use bundler_types::user_operation::UserOperation;
-use ethers::types::{Address, U256};
-use log::info;
+use ethers::types::{Address, Bytes, U256};
 use moka::sync::Cache;
-use rocksdb::{Options, DB};
-use std::sync::Arc;
 use std::time::Duration;
 
 #[async_trait]
 pub trait MempoolService: Send + Sync {
-    async fn add(&self, ep_addr: Address, user_ops: UserOperation) -> Result<(), MempoolError>;
-    async fn get_op(
-        &self,
-        ep_addr: &Address,
-        sender: &Address,
-        nonce: &U256,
-    ) -> Option<UserOperation>;
+    async fn push(&self, ep_addr: Address, user_ops: UserOperation);
+    async fn pop(&self) -> Option<UserOperation>;
+    async fn get_by_hash(&self, hash: Bytes) -> Option<UserOperation>;
 }
 
+#[derive(Clone)]
 pub struct Mempool {
-    cache: Cache<Vec<u8>, UserOperation>,
-    db: DB,
+    chain_id: U256,
+    queue: Arc<RwLock<BinaryHeap<UserOpsWithEpAddr>>>,
+    db: Arc<RwLock<Cache<Bytes, UserOpsWithEpAddr>>>,
 }
 
 #[allow(clippy::new_ret_no_self)]
 impl Mempool {
-    pub fn new() -> Result<Arc<dyn MempoolService>, MempoolError> {
-        let mut db_options = Options::default();
-        db_options.create_if_missing(true);
-
-        Ok(Arc::new(Mempool {
-            cache: Cache::builder()
-                // cache lives for 1 hour after insert
-                .time_to_live(Duration::from_secs(60 * 60))
-                .build(),
-            // TODO: config bundler db directory
-            db: DB::open(&db_options, "./db")
-                .map_err(|e| MempoolError::DbInitError { msg: e.to_string() })?,
-        }))
+    pub fn new(chain_id: u32) -> Mempool {
+        Mempool {
+            chain_id: U256::from(chain_id),
+            queue: Arc::new(RwLock::new(BinaryHeap::new())),
+            db: Arc::new(RwLock::new(
+                Cache::builder()
+                    // cache lives for 3 hour after insert
+                    .time_to_live(Duration::from_secs(3 * 60 * 60))
+                    .build(),
+            )),
+        }
     }
 }
 
 #[async_trait]
 impl MempoolService for Mempool {
-    async fn add(&self, ep_addr: Address, user_ops: UserOperation) -> Result<(), MempoolError> {
-        let key = get_unique_key(&ep_addr, &user_ops.sender, &user_ops.nonce);
-        let value = user_ops
-            .try_serialize()
-            .map_err(|e| MempoolError::SerializeError { msg: e.to_string() })?;
+    async fn push(&self, ep_addr: Address, user_ops: UserOperation) {
+        let user_ops_with_ep_addr =
+            UserOpsWithEpAddr::from_user_ops(&ep_addr, &user_ops, &self.chain_id);
+        self.queue
+            .write()
+            .unwrap()
+            .push(user_ops_with_ep_addr.clone());
 
-        self.cache.insert(key.clone(), user_ops);
-        self.db
-            .put(key, value)
-            .map_err(|e| MempoolError::InsertError { msg: e.to_string() })?;
-
-        Ok(())
+        let hash = user_ops.hash(&ep_addr, &self.chain_id);
+        self.db.write().unwrap().insert(hash, user_ops_with_ep_addr);
     }
 
-    async fn get_op(
-        &self,
-        ep_addr: &Address,
-        sender: &Address,
-        nonce: &U256,
-    ) -> Option<UserOperation> {
-        let key = get_unique_key(ep_addr, sender, nonce);
-        if self.cache.contains_key(&key) {
-            info!("cache hit");
-            self.cache.get(&key)
-        } else {
-            let data = self.db.get(&key).ok()??;
-            serde_json::from_slice::<UserOperation>(&data).ok()
+    async fn pop(&self) -> Option<UserOperation> {
+        let user_ops = self.queue.write().unwrap().pop();
+        if let Some(user_ops) = &user_ops {
+            self.db.write().unwrap().remove(&user_ops.hash);
         }
+
+        user_ops.map(|u| u.user_ops)
+    }
+
+    async fn get_by_hash(&self, hash: Bytes) -> Option<UserOperation> {
+        self.db.read().unwrap().get(&hash).map(|u| u.user_ops)
     }
 }

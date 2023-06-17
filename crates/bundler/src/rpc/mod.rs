@@ -5,19 +5,22 @@ pub mod service;
 pub mod types;
 
 use crate::rpc::types::BundlerClient;
+
 use actix_web::{web, App, HttpServer};
 use log::info;
 use mempool::{Mempool, MempoolService};
-use std::sync::Arc;
 
 pub async fn new_server() {
     info!("starting server");
-    let mempool = Mempool::new().unwrap_or_else(|e| panic!("{e}"));
+
+    // TODO: chain id to lazy static
+    let chain_id = 1;
+    let mempool = Mempool::new(chain_id);
 
     HttpServer::new(move || {
         App::new()
             .service(new_service())
-            .app_data(new_app_data(mempool.clone()).unwrap_or_else(|e| panic!("{}", e)))
+            .app_data(new_app_data(Box::new(mempool.clone())).unwrap_or_else(|e| panic!("{}", e)))
     })
     .bind(("0.0.0.0", 8000))
     .unwrap()
@@ -26,7 +29,8 @@ pub async fn new_server() {
     .unwrap()
 }
 
-fn new_app_data(mempool: Arc<dyn MempoolService>) -> Result<web::Data<BundlerClient>, String> {
+fn new_app_data(mempool: Box<dyn MempoolService>) -> Result<web::Data<BundlerClient>, String> {
+    // TODO: ep_addr, signer lazy_static
     Ok(web::Data::new(BundlerClient::new("", "", mempool)?))
 }
 
