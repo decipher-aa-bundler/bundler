@@ -30,6 +30,7 @@ pub async fn new_server() {
 }
 
 fn new_app_data(mempool: Box<dyn MempoolService>) -> Result<web::Data<BundlerClient>, String> {
+    // TODO: ep_addr, signer lazy_static
     Ok(web::Data::new(BundlerClient::new("", "", mempool)?))
 }
 
