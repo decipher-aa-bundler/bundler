@@ -19,12 +19,12 @@ mod eth_client_test {
         async fn setup() -> Self {
             let private_key_hex =
                 "b01525a6e3d4b5804aa22dec67b9797de5430c27dc7b64a00762c51219f2bc63";
-            let private_key = hex::decode(private_key_hex).unwrap();
 
             EthClientContext {
                 eth_client: EthClient::new(
+                    "https://ethereum-goerli.publicnode.com",
                     "0x7eA231E8C3b21ca5086cb2ed6647C1B851029Cc7",
-                    private_key.as_slice(),
+                    private_key_hex,
                 )
                 .unwrap(),
                 user_ops: UserOps {

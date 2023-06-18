@@ -6,21 +6,24 @@ pub mod types;
 
 use crate::rpc::types::BundlerClient;
 
+use crate::config::Config;
 use actix_web::{web, App, HttpServer};
 use log::info;
 use mempool::{Mempool, MempoolService};
 
-pub async fn new_server() {
+pub async fn new_server(config_path: String) {
     info!("starting server");
 
-    // TODO: chain id to lazy static
-    let chain_id = 1;
+    Config::set(config_path);
+    let config = Config::get();
+    let chain_id = config.chain_id;
+
     let mempool = Mempool::new(chain_id);
 
     HttpServer::new(move || {
-        App::new()
-            .service(new_service())
-            .app_data(new_app_data(Box::new(mempool.clone())).unwrap_or_else(|e| panic!("{}", e)))
+        App::new().service(new_service()).app_data(
+            new_app_data(&config, Box::new(mempool.clone())).unwrap_or_else(|e| panic!("{}", e)),
+        )
     })
     .bind(("0.0.0.0", 8000))
     .unwrap()
@@ -29,9 +32,11 @@ pub async fn new_server() {
     .unwrap()
 }
 
-fn new_app_data(mempool: Box<dyn MempoolService>) -> Result<web::Data<BundlerClient>, String> {
-    // TODO: ep_addr, signer lazy_static
-    Ok(web::Data::new(BundlerClient::new("", "", mempool)?))
+fn new_app_data(
+    config: &Config,
+    mempool: Box<dyn MempoolService>,
+) -> Result<web::Data<BundlerClient>, String> {
+    Ok(web::Data::new(BundlerClient::new(config, mempool)?))
 }
 
 fn new_service() -> actix_web::Scope {

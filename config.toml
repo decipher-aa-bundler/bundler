@@ -1,0 +1,5 @@
+chain_id = 1
+eth_rpc = "https://ethereum-goerli.publicnode.com"
+ep_addr = "0x7eA231E8C3b21ca5086cb2ed6647C1B851029Cc7"
+# signer priv_key
+signer = "27fbd95bec4cf6ba517611cdb9782e846384f63efbd979151e8d4b3350b0e1d1"
