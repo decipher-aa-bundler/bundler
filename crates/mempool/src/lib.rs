@@ -16,6 +16,7 @@ pub trait MempoolService: Send + Sync {
     async fn push(&self, ep_addr: Address, user_ops: UserOperation);
     async fn pop(&self) -> Option<UserOperation>;
     async fn get_by_hash(&self, hash: Bytes) -> Option<UserOperation>;
+    async fn get_mempool_size(&self) -> usize;
 }
 
 #[derive(Clone)]
@@ -66,5 +67,9 @@ impl MempoolService for Mempool {
 
     async fn get_by_hash(&self, hash: Bytes) -> Option<UserOperation> {
         self.db.read().unwrap().get(&hash).map(|u| u.user_ops)
+    }
+
+    async fn get_mempool_size(&self) -> usize {
+        self.queue.read().unwrap().len()
     }
 }
