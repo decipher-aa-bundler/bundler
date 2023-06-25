@@ -45,7 +45,12 @@ impl Default for GasOverhead {
 }
 
 impl EthClient {
-    pub fn new(eth_rpc: &str, ep_addr: &str, signer: &str) -> Result<EthClient, EthereumError> {
+    pub fn new(
+        eth_rpc: &str,
+        ep_addr: &str,
+        signer: &str,
+        chain_id: u64,
+    ) -> Result<EthClient, EthereumError> {
         let eth_provider = Provider::<Http>::try_from(eth_rpc)
             .map_err(|e| EthereumError::ProviderError(e.to_string()))?;
         let ep_addr = Address::from_str(ep_addr)
@@ -65,11 +70,10 @@ impl EthClient {
                 ep_addr,
                 Arc::new(SignerMiddleware::new(
                     eth_provider,
-                    signer.with_chain_id(5 as u64),
+                    signer.with_chain_id(chain_id),
                 )),
             ),
         })
-        //TODO chain id param으로 받아오도록 수정
     }
 }
 

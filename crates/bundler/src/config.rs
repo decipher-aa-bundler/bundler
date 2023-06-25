@@ -7,7 +7,7 @@ lazy_static::lazy_static! {
 
 #[derive(Debug, Clone, Default, Deserialize)]
 pub struct Config {
-    pub chain_id: u32,
+    pub chain_id: u64,
     pub eth_rpc: String,
     pub ep_addr: String,
     pub signer: String,

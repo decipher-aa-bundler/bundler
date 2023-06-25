@@ -31,6 +31,7 @@ mod bundle_worker_test {
                 "https://ethereum-goerli.publicnode.com",
                 "0x7eA231E8C3b21ca5086cb2ed6647C1B851029Cc7",
                 private_key_hex,
+                5,
             )
             .unwrap();
             let mempool = Mempool::new(5);

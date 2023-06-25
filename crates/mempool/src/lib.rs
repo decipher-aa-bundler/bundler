@@ -28,7 +28,7 @@ pub struct Mempool {
 
 #[allow(clippy::new_ret_no_self)]
 impl Mempool {
-    pub fn new(chain_id: u32) -> Mempool {
+    pub fn new(chain_id: u64) -> Mempool {
         Mempool {
             chain_id: U256::from(chain_id),
             queue: Arc::new(RwLock::new(BinaryHeap::new())),
