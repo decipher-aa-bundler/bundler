@@ -36,5 +36,5 @@ pub trait EthClientHandler: Send + Sync {
         &self,
         ops: Vec<UserOperation>,
         beneficiary: Address,
-    ) -> Option<EthereumError>;
+    ) -> Result<(), EthereumError>;
 }

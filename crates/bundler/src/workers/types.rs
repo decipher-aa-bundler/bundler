@@ -14,7 +14,7 @@ use crate::{
     workers::BundleManager,
 };
 
-use super::ReputationHandler;
+use super::{errors::WorkerError, ReputationHandler};
 
 pub struct BundleWorker {
     mempool: Box<dyn MempoolService>,
@@ -44,7 +44,7 @@ impl BundleWorker {
 
 #[async_trait]
 impl BundleManager for BundleWorker {
-    async fn create_bundle(&self) -> Result<Vec<UserOperation>, EthereumError> {
+    async fn create_bundle(&self) -> Result<Vec<UserOperation>, WorkerError> {
         let mut senders: HashSet<Address> = HashSet::new();
         let mut total_gas: u64 = 0;
         let mut paymaster_deposit: HashMap<Address, U256> = HashMap::new();
@@ -68,7 +68,9 @@ impl BundleManager for BundleWorker {
                 let reputation = self.reputation_checker.check_reputation(paymaster);
                 match reputation {
                     None => {
-                        //TODO : Throw Error
+                        return Err(WorkerError::ReputationError(
+                            "Reputation does not exist".to_string(),
+                        ))
                     }
                     Some(Reputation::THROTTLED) => {
                         // skip
@@ -89,7 +91,9 @@ impl BundleManager for BundleWorker {
                 let reputation = self.reputation_checker.check_reputation(factory);
                 match reputation {
                     None => {
-                        //TODO: Throw Error
+                        return Err(WorkerError::ReputationError(
+                            "Reputation does not exist".to_string(),
+                        ))
                     }
                     Some(Reputation::THROTTLED) => {
                         // skip
@@ -116,7 +120,8 @@ impl BundleManager for BundleWorker {
             let validation_result = self
                 .eth_client
                 .simulate_validation(user_ops.clone())
-                .await?;
+                .await
+                .map_err(|e| WorkerError::SecondValidationError(e.to_string()))?;
 
             // check maximum gas
             let user_ops_gas: u64 = user_ops
@@ -133,7 +138,11 @@ impl BundleManager for BundleWorker {
             // check paymaster deposit
             if let Some(paymaster) = paymaster {
                 if paymaster_deposit[&paymaster] == U256::from(0) {
-                    let balance = self.eth_client.get_balance(paymaster).await?;
+                    let balance = self
+                        .eth_client
+                        .get_balance(paymaster)
+                        .await
+                        .map_err(|e| WorkerError::EthClientError(e.to_string()))?;
                     paymaster_deposit
                         .entry(paymaster)
                         .and_modify(|deposit| *deposit = balance);
@@ -169,20 +178,22 @@ impl BundleManager for BundleWorker {
         &self,
         beneficiary: Address,
         bundle: Vec<UserOperation>,
-    ) -> Result<(), EthereumError> {
+    ) -> Result<(), WorkerError> {
         // send bundle
         let result = self
             .eth_client
             .handle_ops(bundle.clone(), beneficiary)
             .await;
 
-        if result.is_none() {
+        if result.is_ok() {
             return Ok(());
         }
 
         let mut returning_bundle: Vec<UserOperation> = bundle.clone();
 
-        if let Some(EthereumError::FailedOpError(failed_op_index, revert_msg)) = result.as_ref() {
+        if let EthereumError::FailedOpError(failed_op_index, revert_msg) =
+            result.as_ref().unwrap_err()
+        {
             let failed_user_ops = &bundle[*failed_op_index as usize];
 
             if revert_msg.to_string().contains("AA3") {
@@ -206,7 +217,7 @@ impl BundleManager for BundleWorker {
             let _ = self.mempool.push(self.ep_addr, op.clone());
         });
 
-        return Err(result.unwrap());
+        return result.map_err(|e| WorkerError::EthClientError(e.to_string()));
     }
 }
 

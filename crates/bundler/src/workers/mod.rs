@@ -1,3 +1,4 @@
+mod errors;
 pub mod types;
 
 use std::vec::Vec;
@@ -6,20 +7,20 @@ use async_trait::async_trait;
 use bundler_types::user_operation::UserOperation;
 use ethers::types::Address;
 
-use crate::ethereum::errors::EthereumError;
+use crate::workers::errors::WorkerError;
 
 use self::types::Reputation;
 
 #[async_trait]
 pub trait BundleManager: Send + Sync {
-    async fn create_bundle(&self) -> Result<Vec<UserOperation>, EthereumError>;
+    async fn create_bundle(&self) -> Result<Vec<UserOperation>, WorkerError>;
     async fn send_bundle(
         &self,
         beneficiary: Address,
         bundle: Vec<UserOperation>,
-    ) -> Result<(), EthereumError>;
+    ) -> Result<(), WorkerError>;
 
-    // async fn send_next_bundle(&self) -> Result<SendBundleResult, EthereumError>;
+    // async fn send_next_bundle(&self) -> Result<SendBundleResult, WorkerError>;
 }
 
 #[async_trait]

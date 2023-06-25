@@ -167,32 +167,32 @@ impl EthClientHandler for EthClient {
         &self,
         ops: Vec<UserOperation>,
         beneficiary: Address,
-    ) -> Option<EthereumError> {
+    ) -> Result<(), EthereumError> {
         let contract_ops = ops.iter().map(|op| op.clone().into()).collect();
 
         let handle_ops_call = self.entry_point.handle_ops(contract_ops, beneficiary);
         let call_result = handle_ops_call.send().await;
 
         if call_result.is_ok() {
-            return None;
+            return Ok(());
         }
 
         let revert_msg = match call_result.as_ref().err().unwrap() {
             ContractError::Revert(msg) => msg,
             other => {
-                return Some(EthereumError::HandleOpsError(format!(
+                return Err(EthereumError::HandleOpsError(format!(
                     "error is not a revert: {:?}",
                     other
-                )))
+                )));
             }
         };
 
         match IEntryPointErrors::decode(revert_msg.as_ref()) {
-            Ok(IEntryPointErrors::FailedOp(failed_op)) => Some(EthereumError::FailedOpError(
+            Ok(IEntryPointErrors::FailedOp(failed_op)) => Err(EthereumError::FailedOpError(
                 failed_op.op_index.as_u64(),
                 failed_op.reason,
             )),
-            _ => Some(EthereumError::HandleOpsError(format!(
+            _ => Err(EthereumError::HandleOpsError(format!(
                 "error is not a revert: {:?}",
                 call_result.err()
             ))),
