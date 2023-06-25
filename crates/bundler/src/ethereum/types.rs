@@ -8,7 +8,7 @@ use ethers::{
     contract::ContractError,
     middleware::SignerMiddleware,
     providers::{Http, Middleware, Provider},
-    signers::LocalWallet,
+    signers::{LocalWallet, Signer},
     types::{transaction::eip2718::TypedTransaction, Address, Bytes, U256},
 };
 
@@ -63,9 +63,13 @@ impl EthClient {
             eth_provider: Arc::new(eth_provider.clone()),
             entry_point: IEntryPoint::new(
                 ep_addr,
-                Arc::new(SignerMiddleware::new(eth_provider, signer)),
+                Arc::new(SignerMiddleware::new(
+                    eth_provider,
+                    signer.with_chain_id(5 as u64),
+                )),
             ),
         })
+        //TODO chain id param으로 받아오도록 수정
     }
 }
 
