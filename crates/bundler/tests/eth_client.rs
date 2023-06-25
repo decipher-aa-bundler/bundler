@@ -76,6 +76,6 @@ mod eth_client_test {
             .simulate_validation(ctx.user_ops.clone())
             .await;
         assert!(res.is_ok());
-        assert_eq!(334203, res.unwrap().as_u64())
+        assert_eq!(334203, res.unwrap().return_info.pre_op_gas.as_u64())
     }
 }

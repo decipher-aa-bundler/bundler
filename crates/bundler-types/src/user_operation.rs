@@ -112,6 +112,22 @@ impl UserOperation {
         )
         .into()
     }
+
+    pub fn get_paymaster_addr(&self) -> Option<Address> {
+        if self.paymaster_and_data.len() < 20 {
+            return None;
+        }
+
+        Some(Address::from_slice(&self.paymaster_and_data[0..20]))
+    }
+
+    pub fn get_factory_addr(&self) -> Option<Address> {
+        if self.init_code.len() < 20 {
+            return None;
+        }
+
+        Some(Address::from_slice(&self.init_code[0..20]))
+    }
 }
 
 impl From<UserOperation> for entry_point::UserOperation {

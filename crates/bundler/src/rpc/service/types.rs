@@ -43,6 +43,8 @@ impl BundlerServiceHandler for BundlerService {
             .eth_client
             .simulate_validation(user_operation)
             .await?
+            .return_info
+            .pre_op_gas
             .to_string();
 
         Ok(EstimateUserOpsGasResponse::new(

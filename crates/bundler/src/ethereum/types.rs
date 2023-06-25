@@ -111,7 +111,10 @@ impl EthClientHandler for EthClient {
             .into())
     }
 
-    async fn simulate_validation(&self, user_ops: UserOperation) -> Result<U256, EthereumError> {
+    async fn simulate_validation(
+        &self,
+        user_ops: UserOperation,
+    ) -> Result<ValidationResult, EthereumError> {
         let validation_call = self.entry_point.simulate_validation(user_ops.into());
         let res = validation_call.call().await;
         if res.is_ok() {
@@ -125,7 +128,7 @@ impl EthClientHandler for EthClient {
             ContractError::Revert(msg) => msg,
             other => {
                 return Err(EthereumError::ValidateError(format!(
-                    "error is not reverted: {:?}",
+                    "error is not a revert: {:?}",
                     other
                 )))
             }
@@ -140,12 +143,54 @@ impl EthClientHandler for EthClient {
                 // uncomment below when needed
 
                 // validation_result.validate()?;
-                Ok(validation_result.return_info.pre_op_gas)
+                Ok(validation_result)
             }
 
             other => Err(EthereumError::DecodeError(format!(
                 "expected validation error: {}",
                 other
+            ))),
+        }
+    }
+    async fn get_balance(&self, address: Address) -> Result<U256, EthereumError> {
+        self.entry_point
+            .balance_of(address)
+            .await
+            .map_err(|e| EthereumError::ProviderError(e.to_string()))
+    }
+
+    async fn handle_ops(
+        &self,
+        ops: Vec<UserOperation>,
+        beneficiary: Address,
+    ) -> Option<EthereumError> {
+        let contract_ops = ops.iter().map(|op| op.clone().into()).collect();
+
+        let handle_ops_call = self.entry_point.handle_ops(contract_ops, beneficiary);
+        let call_result = handle_ops_call.send().await;
+
+        if call_result.is_ok() {
+            return None;
+        }
+
+        let revert_msg = match call_result.as_ref().err().unwrap() {
+            ContractError::Revert(msg) => msg,
+            other => {
+                return Some(EthereumError::HandleOpsError(format!(
+                    "error is not a revert: {:?}",
+                    other
+                )))
+            }
+        };
+
+        match IEntryPointErrors::decode(revert_msg.as_ref()) {
+            Ok(IEntryPointErrors::FailedOp(failed_op)) => Some(EthereumError::FailedOpError(
+                failed_op.op_index.as_u64(),
+                failed_op.reason,
+            )),
+            _ => Some(EthereumError::HandleOpsError(format!(
+                "error is not a revert: {:?}",
+                call_result.err()
             ))),
         }
     }
