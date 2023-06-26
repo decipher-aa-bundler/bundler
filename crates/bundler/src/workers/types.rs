@@ -248,15 +248,19 @@ pub struct ReputationChecker {
 }
 
 impl ReputationChecker {
-    pub fn new() -> ReputationChecker {
+    pub fn new(
+        op_seen_denominator: u64,
+        banned_threshold: u64,
+        throttled_threshold: u64,
+    ) -> ReputationChecker {
         ReputationChecker {
             address_info: Arc::new(RwLock::new(HashMap::new())),
             white_list: Arc::new(RwLock::new(HashSet::new())),
             black_list: Arc::new(RwLock::new(HashSet::new())),
             reputation_params: ReputationParams {
-                op_seen_denominator: 100,
-                banned_threshold: 10,
-                throttled_threshold: 10,
+                op_seen_denominator,
+                banned_threshold,
+                throttled_threshold,
             },
         }
     }

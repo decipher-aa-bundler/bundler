@@ -35,7 +35,7 @@ mod bundle_worker_test {
             )
             .unwrap();
             let mempool = Mempool::new(5);
-            let reputation_checker = ReputationChecker::new();
+            let reputation_checker = ReputationChecker::new(100, 10, 10);
 
             // Add user ops to mempool
             let user_ops: UserOperation = UserOps {
