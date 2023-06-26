@@ -213,9 +213,9 @@ impl BundleManager for BundleWorker {
             }
         }
 
-        returning_bundle.iter().for_each(|op| {
-            let _ = self.mempool.push(self.ep_addr, op.clone());
-        });
+        for op in returning_bundle {
+            self.mempool.push(self.ep_addr, op).await;
+        }
 
         return result.map_err(|e| WorkerError::EthClientError(e.to_string()));
     }
@@ -280,7 +280,7 @@ impl ReputationHandler for ReputationChecker {
     }
 
     fn check_reputation(&self, addr: Address) -> Option<Reputation> {
-        if self.address_info.read().unwrap().contains_key(&addr) {
+        if !self.address_info.read().unwrap().contains_key(&addr) {
             return None;
         }
 
@@ -288,11 +288,11 @@ impl ReputationHandler for ReputationChecker {
         let min_op_added = entry.op_seen / self.reputation_params.op_seen_denominator;
 
         if min_op_added <= entry.op_included + self.reputation_params.throttled_threshold {
-            return Some(Reputation::OK);
+            Some(Reputation::OK)
         } else if min_op_added <= entry.op_included + self.reputation_params.banned_threshold {
-            return Some(Reputation::THROTTLED);
+            Some(Reputation::THROTTLED)
         } else {
-            return Some(Reputation::BANNED);
+            Some(Reputation::BANNED)
         }
     }
 
