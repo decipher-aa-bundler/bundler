@@ -1,17 +1,17 @@
 use crate::ethereum::EthClientHandler;
 use crate::rpc::models::{EstimateUserOpsGasResponse, UserOps};
 use crate::rpc::service::BundlerServiceHandler;
+use crate::workers::BundleManager;
 
 use async_trait::async_trait;
 use bundler_types::user_operation::UserOperation;
 use ethers::types::{Address, Bytes};
 use eyre::Result;
-use mempool::MempoolService;
 use std::str::FromStr;
 
 pub struct BundlerService {
     pub eth_client: Box<dyn EthClientHandler>,
-    pub mempool: Box<dyn MempoolService>,
+    pub bundle_manager: Box<dyn BundleManager>,
 }
 
 #[async_trait]
@@ -58,7 +58,8 @@ impl BundlerServiceHandler for BundlerService {
         let ep_addr = Address::from_str(ep_addr)?;
         let user_ops: UserOperation = user_ops.try_into()?;
 
-        self.mempool.push(ep_addr, user_ops).await;
+        self.bundle_manager.add_user_ops(user_ops, ep_addr).await;
+        self.bundle_manager.attempt_bunlde(true).await?;
 
         Ok(())
     }

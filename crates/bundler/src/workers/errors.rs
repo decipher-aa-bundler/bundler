@@ -8,4 +8,8 @@ pub enum WorkerError {
     SecondValidationError(String),
     #[error("{0}")]
     EthClientError(String),
+    #[error("{0}")]
+    DecodeError(String),
+    #[error("{0}")]
+    AttmeptError(String), //TODO remove
 }
