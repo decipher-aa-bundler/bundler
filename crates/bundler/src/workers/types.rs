@@ -50,6 +50,34 @@ impl BundleWorker {
 
 #[async_trait]
 impl BundleManager for BundleWorker {
+    async fn add_user_ops(&self, user_ops: UserOperation, ep_addr: Address) {
+        self.reputation_checker.register_address(user_ops.sender);
+        if let Some(payamster) = user_ops.get_paymaster_addr() {
+            self.reputation_checker.register_address(payamster);
+        }
+        if let Some(factory) = user_ops.get_factory_addr() {
+            self.reputation_checker.register_address(factory);
+        }
+
+        self.mempool.push(ep_addr, user_ops).await;
+    }
+
+    async fn attempt_bunlde(&self, force: bool) -> Result<(), WorkerError> {
+        if !force && self.mempool.get_mempool_size().await < 2 {
+            //TODO 하드코딩 삭제
+            return Err(WorkerError::AttmeptError(
+                "mempool size is too small".to_string(),
+            ));
+        }
+        let bundle = self.create_bundle().await?;
+        if bundle.is_empty() {
+            return Err(WorkerError::AttmeptError("bundle is empty".to_string()));
+        }
+        self.send_bundle(self.beneficiary, bundle).await?;
+
+        Ok(())
+    }
+
     async fn create_bundle(&self) -> Result<Vec<UserOperation>, WorkerError> {
         let mut senders: HashSet<Address> = HashSet::new();
         let mut total_gas: u64 = 0;

@@ -41,5 +41,6 @@ fn new_app_data(
 
 fn new_service() -> actix_web::Scope {
     web::scope("/api/v1")
-        .service(web::scope("user-ops").service(handler::user_ops::estimate_user_ops_gas))
+        .service(web::scope("user-ops").service(handler::user_ops::send_user_operation))
+        .service(web::scope("user-ops-gas").service(handler::user_ops::estimate_user_ops_gas))
 }
