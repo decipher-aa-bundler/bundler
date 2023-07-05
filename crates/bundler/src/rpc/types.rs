@@ -14,8 +14,13 @@ impl BundlerClient {
         Ok(BundlerClient {
             bundler_service: Box::new(BundlerService {
                 eth_client: Box::new(
-                    EthClient::new(&config.eth_rpc, &config.ep_addr, &config.signer)
-                        .map_err(|e| e.to_string())?,
+                    EthClient::new(
+                        &config.eth_rpc,
+                        &config.ep_addr,
+                        &config.signer,
+                        config.chain_id,
+                    )
+                    .map_err(|e| e.to_string())?,
                 ),
                 mempool,
             }),

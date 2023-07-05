@@ -8,4 +8,8 @@ pub enum EthereumError {
     DecodeError(String),
     #[error("{0}")]
     ValidateError(String),
+    #[error("{0}")]
+    FailedOpError(u64, String),
+    #[error("{0}")]
+    HandleOpsError(String),
 }
