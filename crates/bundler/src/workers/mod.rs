@@ -13,6 +13,8 @@ use self::types::Reputation;
 
 #[async_trait]
 pub trait BundleManager: Send + Sync {
+    async fn add_user_ops(&self, user_ops: UserOperation, ep_addr: Address);
+    async fn attempt_bunlde(&self, force: bool) -> Result<(), WorkerError>;
     async fn create_bundle(&self) -> Result<Vec<UserOperation>, WorkerError>;
     async fn send_bundle(
         &self,
