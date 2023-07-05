@@ -6,6 +6,7 @@ use mempool::MempoolService;
 use std::{
     collections::{HashMap, HashSet},
     ops::{Add, Sub},
+    str::FromStr,
     sync::{Arc, RwLock},
 };
 
@@ -21,6 +22,7 @@ pub struct BundleWorker {
     eth_client: Box<dyn EthClientHandler>,
     max_gas: u64,
     ep_addr: Address,
+    beneficiary: Address,
     reputation_checker: Box<dyn ReputationHandler>,
 }
 
@@ -29,16 +31,20 @@ impl BundleWorker {
         mempool: Box<dyn MempoolService>,
         eth_client: Box<dyn EthClientHandler>,
         max_gas: u64,
-        ep_addr: Address,
+        ep_addr: &str,
+        beneficiary: &str,
         reputation_checker: Box<dyn ReputationHandler>,
-    ) -> Self {
-        BundleWorker {
+    ) -> Result<BundleWorker, WorkerError> {
+        Ok(BundleWorker {
             mempool,
             eth_client,
             max_gas,
-            ep_addr,
+            ep_addr: Address::from_str(ep_addr)
+                .map_err(|e| WorkerError::DecodeError(e.to_string()))?,
+            beneficiary: Address::from_str(beneficiary)
+                .map_err(|e| WorkerError::DecodeError(e.to_string()))?,
             reputation_checker,
-        }
+        })
     }
 }
 
@@ -170,7 +176,7 @@ impl BundleManager for BundleWorker {
             bundle.push(user_ops);
             total_gas = new_total_gas;
         }
-
+        println!("created bundle : {:?}", bundle);
         Ok(bundle)
     }
 
@@ -188,6 +194,8 @@ impl BundleManager for BundleWorker {
         if result.is_ok() {
             return Ok(());
         }
+        println!("bundle failed with error : {:?}", result);
+        println!("failed bundle : {:?}", bundle);
 
         let mut returning_bundle: Vec<UserOperation> = bundle.clone();
 
@@ -301,7 +309,7 @@ impl ReputationHandler for ReputationChecker {
     }
 
     fn crashed_user_ops(&self, addr: Address) {
-        // Increase op_seen[addr] by 100
+        // Initialize by (100, 0)
         self.address_info.write().unwrap().insert(
             addr,
             ReputationEntry {
@@ -311,13 +319,50 @@ impl ReputationHandler for ReputationChecker {
         );
     }
 
-    fn register_address(&self, addr: Address) {
+    fn success_user_ops(&self, addr: Address) {
+        if !self.address_info.read().unwrap().contains_key(&addr) {
+            return;
+        }
+        let prev_reputation = self.address_info.read().unwrap()[&addr].clone();
+
         self.address_info.write().unwrap().insert(
             addr,
             ReputationEntry {
-                op_seen: 0,
-                op_included: 0,
+                op_seen: prev_reputation.op_seen,
+                op_included: prev_reputation.op_included + 1,
             },
         );
+    }
+
+    fn success_bundle(&self, bundle: Vec<UserOperation>) {
+        for user_ops in bundle {
+            if let Some(addr) = user_ops.get_paymaster_addr() {
+                self.success_user_ops(addr);
+            }
+            if let Some(addr) = user_ops.get_factory_addr() {
+                self.success_user_ops(addr);
+            }
+            self.success_user_ops(user_ops.sender);
+        }
+    }
+
+    fn register_address(&self, addr: Address) {
+        let mut new_reputation = ReputationEntry {
+            op_seen: 0,
+            op_included: 0,
+        };
+        if self.address_info.read().unwrap().contains_key(&addr) {
+            let prev_reputation = self.address_info.read().unwrap()[&addr].clone();
+
+            new_reputation = ReputationEntry {
+                op_seen: prev_reputation.op_seen + 1,
+                op_included: prev_reputation.op_included,
+            };
+        }
+
+        self.address_info
+            .write()
+            .unwrap()
+            .insert(addr, new_reputation);
     }
 }

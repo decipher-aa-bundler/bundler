@@ -29,5 +29,7 @@ pub trait ReputationHandler: Send + Sync {
     fn update_blacklist(&self, addr: Address, is_blacklisted: bool);
     fn check_reputation(&self, addr: Address) -> Option<Reputation>;
     fn crashed_user_ops(&self, addr: Address);
+    fn success_user_ops(&self, addr: Address);
+    fn success_bundle(&self, bundle: Vec<UserOperation>);
     fn register_address(&self, addr: Address);
 }

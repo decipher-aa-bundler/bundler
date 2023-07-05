@@ -11,6 +11,7 @@ pub struct Config {
     pub eth_rpc: String,
     pub ep_addr: String,
     pub signer: String,
+    pub beneficiary: String,
 }
 
 impl Config {
@@ -23,6 +24,7 @@ impl Config {
         c.eth_rpc = config.eth_rpc;
         c.ep_addr = config.ep_addr;
         c.signer = config.signer;
+        c.beneficiary = config.beneficiary;
     }
 
     pub fn get() -> Config {
