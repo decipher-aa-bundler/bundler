@@ -53,13 +53,13 @@ impl ValidateSimulation for SenderInfo {
     fn validate(&self) -> Result<(), EthereumError> {
         if self.stake < U256::exp10(18) {
             return Err(EthereumError::ValidateError(String::from(
-                "insufficient stake amount",
+                "senderInfo: insufficient stake amount",
             )));
         }
 
         if self.unstake_delay_sec < U256::from(1) {
             return Err(EthereumError::ValidateError(String::from(
-                "insufficient stake time",
+                "senderInfo: insufficient stake time",
             )));
         }
 
@@ -77,13 +77,13 @@ impl ValidateSimulation for FactoryInfo {
     fn validate(&self) -> Result<(), EthereumError> {
         if self.stake < U256::exp10(18) {
             return Err(EthereumError::ValidateError(String::from(
-                "insufficient stake amount",
+                "factoryInfo: insufficient stake amount",
             )));
         }
 
         if self.unstake_delay_sec < U256::from(1) {
             return Err(EthereumError::ValidateError(String::from(
-                "insufficient stake time",
+                "factoryInfo: insufficient stake time",
             )));
         }
 
@@ -101,13 +101,13 @@ impl ValidateSimulation for PaymasterInfo {
     fn validate(&self) -> Result<(), EthereumError> {
         if self.stake < U256::exp10(18) {
             return Err(EthereumError::ValidateError(String::from(
-                "insufficient stake amount",
+                "PaymasterInfo: insufficient stake amount",
             )));
         }
 
         if self.unstake_delay_sec < U256::from(1) {
             return Err(EthereumError::ValidateError(String::from(
-                "insufficient stake time",
+                "PaymasterInfo: insufficient stake time",
             )));
         }
 
@@ -126,13 +126,13 @@ impl ValidateSimulation for AggregatorInfo {
     fn validate(&self) -> Result<(), EthereumError> {
         if self.stake < U256::exp10(18) {
             return Err(EthereumError::ValidateError(String::from(
-                "insufficient stake amount",
+                "AggregatorInfo: insufficient stake amount",
             )));
         }
 
         if self.unstake_delay_sec < U256::from(1) {
             return Err(EthereumError::ValidateError(String::from(
-                "insufficient stake time",
+                "AggregatorInfo: insufficient stake time",
             )));
         }
 
@@ -241,9 +241,10 @@ impl From<ValidationResultWithAggregator> for entry_point::ValidationResultWithA
 
 impl ValidateSimulation for ValidationResult {
     fn validate(&self) -> Result<(), EthereumError> {
-        self.factory_info.validate()?;
-        self.paymaster_info.validate()?;
-        self.sender_info.validate()?;
+        // self.factory_info.validate()?;
+        // self.paymaster_info.validate()?;
+        // self.sender_info.validate()?;
+
         self.return_info.validate()?;
 
         Ok(())

@@ -15,6 +15,8 @@ use ethers::{
 use ethers::abi::AbiDecode;
 use std::{str::FromStr, sync::Arc};
 
+use super::models::ValidateSimulation;
+
 #[derive(Debug)]
 pub struct EthClient {
     eth_provider: Arc<Provider<Http>>,
@@ -150,7 +152,7 @@ impl EthClientHandler for EthClient {
                 // check validation result is ok
                 // uncomment below when needed
 
-                // validation_result.validate()?;
+                validation_result.validate()?;
                 Ok(validation_result)
             }
 

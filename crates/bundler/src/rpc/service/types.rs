@@ -58,7 +58,7 @@ impl BundlerServiceHandler for BundlerService {
         let ep_addr = Address::from_str(ep_addr)?;
         let user_ops: UserOperation = user_ops.try_into()?;
 
-        self.bundle_manager.add_user_ops(user_ops, ep_addr).await;
+        self.bundle_manager.add_user_ops(user_ops, ep_addr).await?;
         self.bundle_manager
             .attempt_bunlde(true)
             .await
