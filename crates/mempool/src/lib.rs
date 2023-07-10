@@ -13,7 +13,7 @@ use std::time::Duration;
 
 #[async_trait]
 pub trait MempoolService: Send + Sync {
-    async fn push(&self, ep_addr: Address, user_ops: UserOperation);
+    async fn push(&self, ep_addr: Address, user_ops: UserOperation) -> Bytes;
     async fn pop(&self) -> Option<UserOperation>;
     async fn get_by_hash(&self, hash: Bytes) -> Option<UserOperation>;
     async fn get_mempool_size(&self) -> usize;
@@ -44,7 +44,7 @@ impl Mempool {
 
 #[async_trait]
 impl MempoolService for Mempool {
-    async fn push(&self, ep_addr: Address, user_ops: UserOperation) {
+    async fn push(&self, ep_addr: Address, user_ops: UserOperation) -> Bytes {
         let user_ops_with_ep_addr =
             UserOpsWithEpAddr::from_user_ops(&ep_addr, &user_ops, &self.chain_id);
         self.queue
@@ -53,7 +53,12 @@ impl MempoolService for Mempool {
             .push(user_ops_with_ep_addr.clone());
 
         let hash = user_ops.hash(&ep_addr, &self.chain_id);
-        self.db.write().unwrap().insert(hash, user_ops_with_ep_addr);
+        self.db
+            .write()
+            .unwrap()
+            .insert(hash.clone(), user_ops_with_ep_addr);
+
+        return hash;
     }
 
     async fn pop(&self) -> Option<UserOperation> {

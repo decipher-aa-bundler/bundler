@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use bundler_types::user_operation::UserOperation;
 
-use ethers::types::{Address, TxHash, U256};
+use ethers::types::{Address, Bytes, TxHash, U256};
 use mempool::MempoolService;
 use std::{
     collections::{HashMap, HashSet},
@@ -50,7 +50,16 @@ impl BundleWorker {
 
 #[async_trait]
 impl BundleManager for BundleWorker {
-    async fn add_user_ops(&self, user_ops: UserOperation, ep_addr: Address) {
+    async fn add_user_ops(
+        &self,
+        user_ops: UserOperation,
+        ep_addr: Address,
+    ) -> Result<Bytes, WorkerError> {
+        self.eth_client
+            .simulate_validation(user_ops.clone())
+            .await
+            .map_err(|e| WorkerError::EthClientError(e.to_string()))?;
+
         self.reputation_checker.register_address(user_ops.sender);
         if let Some(payamster) = user_ops.get_paymaster_addr() {
             self.reputation_checker.register_address(payamster);
@@ -59,7 +68,7 @@ impl BundleManager for BundleWorker {
             self.reputation_checker.register_address(factory);
         }
 
-        self.mempool.push(ep_addr, user_ops).await;
+        return Ok(self.mempool.push(ep_addr, user_ops).await);
     }
 
     async fn attempt_bunlde(&self, force: bool) -> Result<TxHash, WorkerError> {
