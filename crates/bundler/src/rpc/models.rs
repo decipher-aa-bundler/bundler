@@ -1,6 +1,7 @@
 use crate::rpc::errors::RpcError;
 
 use bundler_types::user_operation::UserOperation;
+use ethers::types::TxHash;
 use serde::{Deserialize, Serialize};
 
 /// All fields must be set as hex values
@@ -82,5 +83,17 @@ impl EstimateUserOpsGasResponse {
             pre_verification_gas,
             verification_gas,
         }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SendUserOpsResponse {
+    pub tx_hash: TxHash,
+}
+
+impl SendUserOpsResponse {
+    pub fn new(tx_hash: TxHash) -> Self {
+        SendUserOpsResponse { tx_hash }
     }
 }
