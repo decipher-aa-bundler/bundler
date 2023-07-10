@@ -226,8 +226,8 @@ impl BundleManager for BundleWorker {
             .handle_ops(bundle.clone(), beneficiary)
             .await;
 
-        if result.is_ok() {
-            return Ok(result.unwrap());
+        if let Ok(result) = result {
+            return Ok(result);
         }
         println!("bundle failed with error : {:?}", result);
         println!("failed bundle : {:?}", bundle);
