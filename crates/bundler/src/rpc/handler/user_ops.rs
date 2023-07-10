@@ -1,8 +1,8 @@
-use crate::rpc::errors::RpcError;
 use crate::rpc::models::UserOps;
 use crate::rpc::types::BundlerClient;
+use crate::rpc::{errors::RpcError, models::SendUserOpsResponse};
 
-use actix_web::{post, web, HttpResponse, Responder};
+use actix_web::{post, web, Responder};
 
 #[post("/{ep_addr}")]
 pub async fn estimate_user_ops_gas(
@@ -31,11 +31,11 @@ pub async fn send_user_operation(
     let user_ops = body.into_inner();
     let ep_addr = path.into_inner();
 
-    client
+    let tx_hash = client
         .bundler_service
         .send_user_operation(&user_ops, &ep_addr)
         .await
         .map_err(|e| RpcError::Error(e.to_string()))?;
 
-    Ok(HttpResponse::Ok())
+    Ok(web::Json(SendUserOpsResponse::new(tx_hash)))
 }

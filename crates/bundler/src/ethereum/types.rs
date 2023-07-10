@@ -9,7 +9,7 @@ use ethers::{
     middleware::SignerMiddleware,
     providers::{Http, Middleware, Provider},
     signers::{LocalWallet, Signer},
-    types::{transaction::eip2718::TypedTransaction, Address, Bytes, U256},
+    types::{transaction::eip2718::TypedTransaction, Address, Bytes, TxHash, U256},
 };
 
 use ethers::abi::AbiDecode;
@@ -171,14 +171,14 @@ impl EthClientHandler for EthClient {
         &self,
         ops: Vec<UserOperation>,
         beneficiary: Address,
-    ) -> Result<(), EthereumError> {
+    ) -> Result<TxHash, EthereumError> {
         let contract_ops = ops.iter().map(|op| op.clone().into()).collect();
 
         let handle_ops_call = self.entry_point.handle_ops(contract_ops, beneficiary);
         let call_result = handle_ops_call.send().await;
 
-        if call_result.is_ok() {
-            return Ok(());
+        if let Ok(tx) = call_result {
+            return Ok(tx.tx_hash());
         }
 
         let revert_msg = match call_result.as_ref().err().unwrap() {

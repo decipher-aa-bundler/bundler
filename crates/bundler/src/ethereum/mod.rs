@@ -7,7 +7,7 @@ use crate::ethereum::errors::EthereumError;
 use bundler_types::user_operation::UserOperation;
 
 use async_trait::async_trait;
-use ethers::types::{Address, Bytes, U256};
+use ethers::types::{Address, Bytes, TxHash, U256};
 
 use self::models::ValidationResult;
 
@@ -36,5 +36,5 @@ pub trait EthClientHandler: Send + Sync {
         &self,
         ops: Vec<UserOperation>,
         beneficiary: Address,
-    ) -> Result<(), EthereumError>;
+    ) -> Result<TxHash, EthereumError>;
 }

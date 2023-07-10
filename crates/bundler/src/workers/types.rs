@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use bundler_types::user_operation::UserOperation;
 
-use ethers::types::{Address, U256};
+use ethers::types::{Address, TxHash, U256};
 use mempool::MempoolService;
 use std::{
     collections::{HashMap, HashSet},
@@ -62,7 +62,7 @@ impl BundleManager for BundleWorker {
         self.mempool.push(ep_addr, user_ops).await;
     }
 
-    async fn attempt_bunlde(&self, force: bool) -> Result<(), WorkerError> {
+    async fn attempt_bunlde(&self, force: bool) -> Result<TxHash, WorkerError> {
         if !force && self.mempool.get_mempool_size().await < 2 {
             //TODO 하드코딩 삭제
             return Err(WorkerError::AttmeptError(
@@ -73,9 +73,7 @@ impl BundleManager for BundleWorker {
         if bundle.is_empty() {
             return Err(WorkerError::AttmeptError("bundle is empty".to_string()));
         }
-        self.send_bundle(self.beneficiary, bundle).await?;
-
-        Ok(())
+        self.send_bundle(self.beneficiary, bundle).await
     }
 
     async fn create_bundle(&self) -> Result<Vec<UserOperation>, WorkerError> {
@@ -212,7 +210,7 @@ impl BundleManager for BundleWorker {
         &self,
         beneficiary: Address,
         bundle: Vec<UserOperation>,
-    ) -> Result<(), WorkerError> {
+    ) -> Result<TxHash, WorkerError> {
         // send bundle
         let result = self
             .eth_client
@@ -220,7 +218,7 @@ impl BundleManager for BundleWorker {
             .await;
 
         if result.is_ok() {
-            return Ok(());
+            return Ok(result.unwrap());
         }
         println!("bundle failed with error : {:?}", result);
         println!("failed bundle : {:?}", bundle);
