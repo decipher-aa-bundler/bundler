@@ -21,8 +21,8 @@ impl BundlerServiceHandler for BundlerService {
         user_ops: &UserOps,
         ep_addr: &str,
     ) -> Result<EstimateUserOpsGasResponse> {
-        let from = Address::from_str(&user_ops.sender)?;
-        let to = Address::from_str(ep_addr)?;
+        let from = Address::from_str(ep_addr)?;
+        let to = Address::from_str(&user_ops.sender)?;
         let call_data = Bytes::from_str(&user_ops.call_data)?;
 
         let user_operation = UserOperation::try_from(user_ops)?;
