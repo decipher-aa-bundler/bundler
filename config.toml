@@ -1,6 +1,6 @@
 chain_id = 5
 eth_rpc = "https://ethereum-goerli.publicnode.com"
-ep_addr = "0x7eA231E8C3b21ca5086cb2ed6647C1B851029Cc7"
+ep_addr = "0x7eb6D1C6a5C0c30b97668FC391EC9f0e5250a816"
 # signer priv_key
-signer = "3bda47bf6e810ccccc595cd6fd7d7895bbcdf008d1f3fc3b89c1503a2c73300a"
+signer = "fdb04d78609e433dfa0388227bfc8eb130c28283ca7e16447acce42ac8e3ef61"
 beneficiary = "0x8017484dE221AE05Fe3069D6972919b6eb1228d7"

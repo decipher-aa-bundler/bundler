@@ -1,6 +1,6 @@
 chain_id = 5
 eth_rpc = "http://127.0.0.1:8545/"
-ep_addr = "0xa9Bedd3f021c5815d2ed6Ace07DcCB7FeEf8Da4F"
+ep_addr = "0x7eb6D1C6a5C0c30b97668FC391EC9f0e5250a816"
 # signer priv_key
-signer = "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+signer = "fdb04d78609e433dfa0388227bfc8eb130c28283ca7e16447acce42ac8e3ef61"
 beneficiary = "0x8017484dE221AE05Fe3069D6972919b6eb1228d7"

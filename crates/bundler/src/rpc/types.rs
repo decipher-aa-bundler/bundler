@@ -35,7 +35,7 @@ impl BundlerClient {
                             )
                             .map_err(|e| e.to_string())?,
                         ),
-                        10000000,
+                        100000000,
                         &config.ep_addr,
                         &config.beneficiary,
                         Box::new(ReputationChecker::new(100, 10, 10)),
