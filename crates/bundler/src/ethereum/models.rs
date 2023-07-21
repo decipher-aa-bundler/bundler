@@ -28,15 +28,11 @@ impl ValidateSimulation for ReturnInfo {
             return Err(EthereumError::ValidateError("sig failed".to_string()));
         }
         if now < self.valid_after {
-            return Err(EthereumError::ValidateError(
-                "too early to get allowance".to_string(),
-            ));
+            return Err(EthereumError::ValidateError("No allowance".to_string()));
         }
 
         if now > self.valid_until {
-            return Err(EthereumError::ValidateError(
-                "allowance expired".to_string(),
-            ));
+            return Err(EthereumError::ValidateError("No allowance".to_string()));
         }
 
         Ok(())
