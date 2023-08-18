@@ -152,7 +152,6 @@ impl EthClientHandler for EthClient {
                 // check validation result is ok
                 // uncomment below when needed
 
-                println!("{:?}", validation_result);
                 validation_result.validate()?;
                 Ok(validation_result)
             }

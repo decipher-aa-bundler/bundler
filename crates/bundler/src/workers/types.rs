@@ -211,7 +211,6 @@ impl BundleManager for BundleWorker {
             bundle.push(user_ops);
             total_gas = new_total_gas;
         }
-        println!("created bundle : {:?}", bundle);
         Ok(bundle)
     }
 

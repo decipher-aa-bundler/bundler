@@ -1,6 +1,0 @@
-chain_id = 5
-eth_rpc = "http://127.0.0.1:8545/"
-ep_addr = "0x7eb6D1C6a5C0c30b97668FC391EC9f0e5250a816"
-# signer priv_key
-signer = "fdb04d78609e433dfa0388227bfc8eb130c28283ca7e16447acce42ac8e3ef61"
-beneficiary = "0x8017484dE221AE05Fe3069D6972919b6eb1228d7"
